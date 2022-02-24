@@ -31,7 +31,15 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	}
 }
 
-void printString(char *string){}
+void printString(char *string){
+	int i = 0; 
+	int l = strlen(string);
+	while(1){
+	  for(i = 0; i < l; i++){
+	     interrupt(0x10,0xE*256+chars[i],0,0,0);
+	  }
+	}
+}
 
 void readString(char *string){}
 
