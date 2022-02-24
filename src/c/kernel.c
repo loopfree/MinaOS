@@ -12,6 +12,7 @@ int main() {
 	clearScreen();
 	makeInterrupt21();
 	
+	printString("Halo dunia!\r\n");
 	readString(buf);
 	printString(buf);
 	
