@@ -62,13 +62,8 @@ void readString(char *string)
 			// kalau input backspace tidak di awal
 			if (i!=0)
 			{
+				interrupt (0x10, 0x0e * 256 + input, 0, 0, 0);
 				i -= 1;
-				string[i] = 0x0;
-				interrupt(0x10, 0x0e * 256 + input, 0, 0, 0);
-				interrupt(0x10, 0x0e * 256 + string[i], 0, 0, 0);
-				i -= 1;
-				interrupt(0x10, 0x0e * 256 + input, 0, 0, 0);
-				i += 1;
 			}
 			// else
 			// Kalau input backspace diawal (i=0) abaikan saja
