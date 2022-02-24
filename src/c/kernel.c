@@ -33,11 +33,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 
 void printString(char *string){
 	int i = 0; 
-	int l = strlen(string);
-	while(1){
-	  for(i = 0; i < l; i++){
-	     interrupt(0x10,0xE*256+chars[i],0,0,0);
-	  }
+	while (string[i] != 0x0) {
+	    interrupt(0x10, 0xE*256 + string[i], 0, 0, 0);
+		i += 1;
 	}
 }
 
@@ -60,10 +58,15 @@ void readString(char *string)
 		if (input == 0x8)
 		{
 			// kalau input backspace tidak di awal
-			if (i!=0)
+			if (i != 0)
 			{
-				interrupt (0x10, 0x0e * 256 + input, 0, 0, 0);
-				i -= 1;
+				i -= 1; 
+				string[i] = 0x0; 
+				interrupt(0x10, 0x0e00 + input, 0, 0, 0); 
+				interrupt(0x10, 0x0e00 + string[i], 0, 0, 0); 
+				i -= 1; 
+				interrupt(0x10, 0x0e00 + input, 0, 0, 0); 
+				i += 1;
 			}
 			// else
 			// Kalau input backspace diawal (i=0) abaikan saja
@@ -73,7 +76,7 @@ void readString(char *string)
 		else
 		{
 			string[i] = input;
-			interrupt(0x10, 0x0e * 256 + input, 0, 0, 0);
+			interrupt(0x10, 0x0e00 + input, 0, 0, 0);
 			i += 1;
 		}
 	}
@@ -81,20 +84,18 @@ void readString(char *string)
 	string[i] = 0x0;
 	string[i+1] = 0xa;
 
-	// enter biar rapih
-	string[i+2] = 0xd;
-
+	interrupt(0x10, 0xe0a, 0, 0, 0);
+	interrupt(0x10, 0xe0d, 0, 0, 0);
+	
 	return;
 }
 
 void clearScreen() {
 	int i = 0;
-	int j = 0;
-	for (i = 0; i < 80; i++) {
-		for (j = 0; j < 25; j++) {
-			putInMemory(0xB000, 0x8000 + 50*i + 2*j, 0x20);
-			putInMemory(0xB000, 0x8001 + 50*i + 2*j, 0xF);
-		}
+	for (i = 0; i < 5000; i++) {
+		putInMemory(0xB000, 0x8000 + 2*i, 0x20);
+		putInMemory(0xB000, 0x8001 + 2*i, 0xF);
 	}
+	interrupt(0x10, 0x200, 0x0, 0x0, 0x0);
 }
 
