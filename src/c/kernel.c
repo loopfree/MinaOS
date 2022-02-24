@@ -35,4 +35,14 @@ void printString(char *string){}
 
 void readString(char *string){}
 
-void clearScreen(){}
+void clearScreen() {
+	int i = 0;
+	int j = 0;
+	for (i = 0; i < 80; i++) {
+		for (j = 0; j < 25; j++) {
+			putInMemory(0xB000, 0x8000 + 50*i + 2*j, 0x20);
+			putInMemory(0xB000, 0x8001 + 50*i + 2*j, 0xF);
+		}
+	}
+}
+
