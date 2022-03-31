@@ -378,9 +378,85 @@ void shell() {
 		printCWD(path_str, current_dir);
 		printString("$");
 		readString(input_buf);
-		if (strcmpn(input_buf, "cd", 2) {
+
+		// cd dapat memindah current working directory ke folder tujuan
+		// cd dapat naik satu tingkat dengan argumen ..
+		// cd dapat langsung kembali ke root dengan argumen "/"
+		if (strcmpn(input_buf, "cd", 2)) {
 			// Utility cd
 		}
+
+		// ls dapat memperlihatkan isi pada current working directory
+		// cmd: ls
+		// hasil: folder A
+		//        b
+		// ls dapat memperlihatkan isi folder yang berada pada
+		// current working directory
+		// cmd: ls folder A
+		// hasil: isi folder A
+		else if (strcmpn(input_buf, "ls", 2)) {
+			// Cari folder dulu
+			struct file_metadata metadata;
+			int ret_code;
+
+			read(&metadata, &ret_code);
+			if (ret_code == 2) { // is folder
+				// loop utk list semua isi dalam foldernya
+			}
+			else {
+				return; // idk what to do :V
+			}
+		}
+
+		// mv dapat memindahkan file dan folder ke root dengan
+		// "/<nama tujuan>"
+		// mv dapat memindahkan file dan folder ke dalam parent
+		// folder current working directory dengan "../<nama tujuan>"
+		// mv dapat memasukkan file dan folder ke folder yang berada
+		// pada current working directory
+		else if (strcmpn(input_buf, "mv", 2)) {
+			// mv
+		}
+
+		// membuat folder baru pada current working directory
+		else if (strcmpn(input_buf, "mkdir", 5)) {
+			create_folder(); // perlu diimplementasikan lagi
+		}
+
+		// menampilkan isi dari file sebagai text file
+		else if (strcmpn(input_buf, "cat", 3)) {
+			// Cari file atau direktori
+			struct file_metadata metadata;
+			int ret_code;
+
+			read(&metadata, &ret_code);
+			if (ret_code == 3) { // file exist
+				printString(&metadata);
+			}
+			else {
+				printString("cat: No such file or directory");
+			}
+		}
+
+		// cp melakukan copy file dari current working directory ke
+		// current working directory
+		else if (strcmpn(input_buf, "cp", 2)) {
+			// Cari file atau direktori
+			struct file_metadata metadata;
+			int ret_code;
+
+			read(&metadata, &ret_code);
+			if (ret_code == 2) { // is folder
+				copy_folder(); // perlu implementasi lagi
+			}
+			else if (ret_code == 3) { // file exist
+				copy_file(); // perlu implementasi lagi
+			}
+			else {
+				printString("No such file or directory");
+			}
+		}
+
 		else
 			printString("Unknown command\r\n");
 	}
