@@ -113,8 +113,8 @@ void clearScreen() {
 	interrupt(0x10, 0x200, 0x0, 0x0, 0x0);
 }
 
-void readSector(byte *buffer, int sector_number) {
-    int sector_read_count = 0x01;
+// sector_read_count is either 0x1 (for common use) or 0x2 (particularly for node sector)
+void readSector(byte *buffer, int sector_number, int sector_read_count) {
     int cylinder, sector;
     int head, drive;
 
@@ -185,7 +185,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	int i = 0;
 
 	// Memasukkan filesystem dari storage ke memori buffer
-	readSector(&node_fs_buffer , FS_NODE_SECTOR_NUMBER);
+	readSector(&node_fs_buffer , FS_NODE_SECTOR_NUMBER , 0x2);
 
 	// 1. Cari node dengan nama dan lokasi yang sama pada filesystem.
 	for(int i = 0 ; i < FS_NODE_SECTOR_CAP ; i++){
@@ -214,7 +214,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	// Pembacaan
 
 	// 0. Memasukkan isi sector filesystem dari storage ke memory
-	readSector(&sector_fs_buffer , FS_SECTOR_SECTOR_NUMBER);
+	readSector(&sector_fs_buffer , FS_SECTOR_SECTOR_NUMBER , 0x1);
 	// 1. memcpy() entry sector sesuai dengan byte S
 	memcpy( &sector,
 			&sector_fs_buffer.sector_list[sector_idx],
@@ -229,7 +229,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 		if(sector.sector_numbers[i] == 0x0){
 			break;
 		}else{
-			readSector(metadata->buffer , sector.sector_numbers[i]);
+			readSector(metadata->buffer , sector.sector_numbers[i] , 0x1);
 		}
 		i++;
 	}

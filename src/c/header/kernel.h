@@ -17,7 +17,7 @@ void readString(char *string);
 void clearScreen();
 
 void writeSector(byte *buffer, int sector_number);
-void readSector(byte *buffer, int sector_number);
+void readSector(byte *buffer, int sector_number , int sector_read_count);
 
 void write(struct file_metadata *metadata, enum fs_retcode *return_code);
 void read(struct file_metadata *metadata, enum fs_retcode *return_code);
