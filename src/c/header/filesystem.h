@@ -5,13 +5,16 @@
 #define FS_MAP_SECTOR_NUMBER    0x100
 #define FS_NODE_SECTOR_NUMBER   0x101
 #define FS_SECTOR_SECTOR_NUMBER 0x103
+#define FS_MAP_SECTOR_CAP       512
+#define FS_NODE_SECTOR_CAP      64
+#define FS_SECTOR_SECTOR_CAP    32
 
 #define FS_NODE_P_IDX_ROOT   0xFF
 #define FS_NODE_S_IDX_FOLDER 0xFF
 
 // Untuk filesystem map
 struct map_filesystem {
-    bool is_filled[512];
+    bool is_filled[FS_MAP_SECTOR_CAP];
 };
 
 
@@ -23,7 +26,7 @@ struct node_entry {
 };
 
 struct node_filesystem {
-    struct node_entry nodes[64];
+    struct node_entry nodes[FS_NODE_SECTOR_CAP];
 };
 
 
@@ -33,7 +36,7 @@ struct sector_entry {
 };
 
 struct sector_filesystem {
-    struct sector_entry sector_list[32];
+    struct sector_entry sector_list[FS_SECTOR_SECTOR_CAP];
 };
 
 
