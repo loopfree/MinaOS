@@ -6,7 +6,7 @@ int div(int a, int b) {
 	return a/b;
 }
 
-int mod(int a, int n) [
+int mod(int a, int n) {
 	return a - div(a,n) * n;
 }
 

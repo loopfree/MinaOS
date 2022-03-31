@@ -7,7 +7,7 @@
 #include "header/kernel.h"
 
 int main() {
-
+	fillMap();
 	char buf[128];
 	clearScreen();
 	makeInterrupt21();
