@@ -29,10 +29,10 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	    	readString(BX);
 	    	break;
 	    case 0x2:
-	    	readSector(BX, CX);
+	    	readSector(BX, CX, 0x1);
 	    	break;
 	   	case 0x3:
-	   		writeSector(BX, CX);
+	   		writeSector(BX, CX, 0x1);
 	   		break;
 	   	case 0x4:
 	   		read(BX, CX);
@@ -113,13 +113,8 @@ void clearScreen() {
 	interrupt(0x10, 0x200, 0x0, 0x0, 0x0);
 }
 
-<<<<<<< HEAD
 void readSector(byte *buffer, int sector_number, int sector_read_count) {
     //int sector_read_count = 0x01;
-=======
-// sector_read_count is either 0x1 (for common use) or 0x2 (particularly for node sector)
-void readSector(byte *buffer, int sector_number, int sector_read_count) {
->>>>>>> d7407c1f94ce04b5544e4c7bd034588be296c3e5
     int cylinder, sector;
     int head, drive;
 
@@ -138,8 +133,8 @@ void readSector(byte *buffer, int sector_number, int sector_read_count) {
     );
 }
 
-void writeSector (byte *buffer, int sector_number) {
-    int sector_read_count = 0x01;
+void writeSector (byte *buffer, int sector_number, int sector_read_count) {
+    //int sector_read_count = 0x01;
     int cylinder, sector;
     int head, drive;
 
@@ -174,7 +169,7 @@ void fillMap() {
 	}
 
 	// Update filesystem map
-	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
+	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 1);
 }
 
 
@@ -347,7 +342,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 			map_fs_buffer.is_filled[i] = true;
 			buffer[j] = i;
 			j += 1;
-			writeSector(metadata->buffer, i);
+			writeSector(metadata->buffer, i, 1);
 
 			if (j * 512 >= metadata->filesize)
 				finished = true;
@@ -360,9 +355,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 	// 8. Lakukan penulisan seluruh filesystem (map, node, sector) ke storage
 	//    menggunakan writeSector() pada sektor yang sesuai
-	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
-	writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
-	writeSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER);
+	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 1);
+	writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 2);
+	writeSector(&sector_fs_buffer, FS_SECTOR_SECTOR_NUMBER, 1);
 
 	// 9. Kembalikan retcode FS_SUCCESS
 	*return_code = FS_SUCCESS;
@@ -464,7 +459,7 @@ void shell() {
 
 void printCWD(char* path, byte cwd) {
 	struct node_filesystem node_fs_buffer;
-	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 2);
 
 	printString(path);
 	if (cwd == FS_NODE_P_IDX_ROOT) 
