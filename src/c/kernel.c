@@ -172,7 +172,8 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	struct node_filesystem   node_fs_buffer;
 	struct sector_filesystem sector_fs_buffer;
 	// Tambahkan tipe data yang dibutuhkan
-
+	byte dest;
+	
 	// Masukkan filesystem dari storage ke memori buffer
 
 	// 1. Cari node dengan nama dan lokasi yang sama pada filesystem.
@@ -195,6 +196,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	// 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
 	// 7. Tulis retcode FS_SUCCESS dan ganti filesize
 	//    pada akhir proses pembacaan.
+
 }
 
 void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
