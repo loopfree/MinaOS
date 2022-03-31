@@ -160,9 +160,13 @@ void fillMap() {
 	// Load filesystem map
 	readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
 
-	/*
-		Edit filesystem map disini
-								*/
+	for (i = 0; i < 16; i++) {
+		map_fs_buffer.is_filled[i] = true;
+	}
+
+	for (i = 256; i < 512; i++) {
+		map_fs_buffer.is_filled[i] = true;
+	}
 
 	// Update filesystem map
 	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER);
@@ -263,3 +267,32 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	// 9. Kembalikan retcode FS_SUCCESS
 }
 
+void shell() {
+	char input_buf[64];
+	char path_str[128];
+	byte current_dir = FS_NODE_P_IDX_ROOT;
+
+	while (true) {
+		printString("minaOS@IF2230:");
+		printCWD(path_str, current_dir);
+		printString("$");
+		readString(input_buf);
+		if (strcmpn(input_buf, "cd", 2) {
+			// Utility cd
+		}
+		else
+			printString("Unknown command\r\n");
+	}
+}
+
+void printCWD(char* path, byte cwd) {
+	struct node_filesystem node_fs_buffer;
+	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER);
+
+	printString(path);
+	if (cwd == FS_NODE_P_IDX_ROOT) 
+		printString("~");
+	else
+		printString("/");
+		printString(node_fs_buffer.nodes[cwd].name);
+}
