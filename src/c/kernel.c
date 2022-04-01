@@ -384,10 +384,10 @@ void shell() {
 			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-				node = node_fs_buffer.nodes[i];
+				struct node_entry node = node_fs_buffer.nodes[i];
 				if (node.parent_node_index == current_dir) {
-					if (strcmpn(input_buf, node.name, 3, strlen(input_buf)) {
-						current_dir = node_fs_buffer[i];
+					if (strcmpn(input_buf, node.name, 3, strlen(input_buf))) {
+						current_dir = i;
 						break;
 					}
 				}
@@ -404,12 +404,12 @@ void shell() {
 		// hasil: isi folder A
 
 		// baru implemen ls
-		else if (strcmpn(input_buf, "ls", 2)) {
+		else if (strcmpn(input_buf, "ls", 0, 2)) {
 			struct node_filesystem node_fs_buffer;
 			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-				node = node_fs_buffer.nodes[i];
+				struct node_entry node = node_fs_buffer.nodes[i];
 				if (node.parent_node_index == current_dir) {
 					printString(node.name);
 				}
@@ -422,17 +422,17 @@ void shell() {
 		// folder current working directory dengan "../<nama tujuan>"
 		// mv dapat memasukkan file dan folder ke folder yang berada
 		// pada current working directory
-		else if (strcmpn(input_buf, "mv", 2)) {
+		else if (strcmpn(input_buf, "mv", 0, 2)) {
 			// mv
 		}
 
 		// membuat folder baru pada current working directory
-		else if (strcmpn(input_buf, "mkdir", 5)) {
+		else if (strcmpn(input_buf, "mkdir", 0, 5)) {
 			create_folder(); // perlu diimplementasikan lagi
 		}
 
 		// menampilkan isi dari file sebagai text file
-		else if (strcmpn(input_buf, "cat", 3)) {
+		else if (strcmpn(input_buf, "cat", 0, 3)) {
 			// Cari file atau direktori
 			struct file_metadata metadata;
 			int ret_code;
@@ -448,7 +448,7 @@ void shell() {
 
 		// cp melakukan copy file dari current working directory ke
 		// current working directory
-		else if (strcmpn(input_buf, "cp", 2)) {
+		else if (strcmpn(input_buf, "cp", 0, 2)) {
 			// Cari file atau direktori
 			struct file_metadata metadata;
 			int ret_code;
