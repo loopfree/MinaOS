@@ -377,8 +377,21 @@ void shell() {
 		// cd dapat memindah current working directory ke folder tujuan
 		// cd dapat naik satu tingkat dengan argumen ..
 		// cd dapat langsung kembali ke root dengan argumen "/"
-		if (strcmpn(input_buf, "cd", 2)) {
-			// Utility cd
+
+		// baru implemen cd folder
+		if (strcmpn(input_buf, "cd", 0, 2)) {
+			struct node_filesystem node_fs_buffer;
+			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+
+			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+				node = node_fs_buffer.nodes[i];
+				if (node.parent_node_index == current_dir) {
+					if (strcmpn(input_buf, node.name, 3, strlen(input_buf)) {
+						current_dir = node_fs_buffer[i];
+						break;
+					}
+				}
+			}
 		}
 
 		// ls dapat memperlihatkan isi pada current working directory
@@ -389,17 +402,17 @@ void shell() {
 		// current working directory
 		// cmd: ls folder A
 		// hasil: isi folder A
-		else if (strcmpn(input_buf, "ls", 2)) {
-			// Cari folder dulu
-			struct file_metadata metadata;
-			int ret_code;
 
-			read(&metadata, &ret_code);
-			if (ret_code == 2) { // is folder
-				// loop utk list semua isi dalam foldernya
-			}
-			else {
-				return; // idk what to do :V
+		// baru implemen ls
+		else if (strcmpn(input_buf, "ls", 2)) {
+			struct node_filesystem node_fs_buffer;
+			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+
+			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+				node = node_fs_buffer.nodes[i];
+				if (node.parent_node_index == current_dir) {
+					printString(node.name);
+				}
 			}
 		}
 

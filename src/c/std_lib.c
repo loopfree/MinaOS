@@ -37,11 +37,12 @@ bool strcmp(char *s1, char *s2) {
 		return false;
 }
 
-bool strcmpn(char *s1, char *s2, unsigned int n) {
+bool strcmpn(char *s1, char *s2, unsigned int s, unsigned int n) {
 	if (strlen(s1) >= n && strlen(s2) >= n) {
-		for (int i = 0; i < n; i++) {
-			if (s1[i] != s2[i]) 
+		for (int i=0; i < n; i++) {
+			if (s1[s] != s2[i]) 
 				return false;
+			s += 1;
 		}
 		return true;
 	}
