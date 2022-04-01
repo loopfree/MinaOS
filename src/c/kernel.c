@@ -407,11 +407,36 @@ void shell() {
 		else if (strcmpn(input_buf, "ls", 0, 2)) {
 			struct node_filesystem node_fs_buffer;
 			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+			if (strlen(input_buf)==2) // only ls
+			{
+				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+					struct node_entry node = node_fs_buffer.nodes[i];
+					if (node.parent_node_index == current_dir) {
+						printString(node.name);
+					}
+				}
+			}
+			else { // ls <folder> -> cd dulu ke dalam <folder> baru ls seperti biasa
+				// melakukan cd
+				struct node_filesystem node_fs_buffer;
+				readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
-			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-				struct node_entry node = node_fs_buffer.nodes[i];
-				if (node.parent_node_index == current_dir) {
-					printString(node.name);
+				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+					struct node_entry node = node_fs_buffer.nodes[i];
+					if (node.parent_node_index == current_dir) {
+						if (strcmpn(input_buf, node.name, 3, strlen(input_buf))) {
+							current_dir = i;
+							break;
+						}
+					}
+				}
+
+				// melakukan ls
+				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+					struct node_entry node = node_fs_buffer.nodes[i];
+					if (node.parent_node_index == current_dir) {
+						printString(node.name);
+					}
 				}
 			}
 		}
