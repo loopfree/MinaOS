@@ -367,6 +367,8 @@ void shell() {
 	char input_buf[64];
 	char path_str[128];
 	byte current_dir = FS_NODE_P_IDX_ROOT;
+	enum fs_retcode return_code = FS_SUCCESS;
+	struct node_entry node;
 
 	while (true) {
 		printString("minaOS@IF2230:");
@@ -380,11 +382,35 @@ void shell() {
 
 		// baru implemen cd folder
 		if (strcmpn(input_buf, "cd", 0, 2)) {
+
+			// cd </>
+			if (strcmpn(input_buf, "/", 3, 2)){
+				current_dir = FS_NODE_P_IDX_ROOT;
+				continue;
+			}
+
+			// cd <..>
+			if (strcmpn(input_buf, "..", 3, 2)){
+				if(current_dir = FS_NODE_P_IDX_ROOT){		// if 'cd ..' from root directory
+					return_code = FS_W_INVALID_FOLDER;
+				}else{
+					for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+						node = node_fs_buffer.nodes[i];
+						if (node.sector_entry_index == current_dir) {
+							current_dir = node.parent_node_index;
+							break;
+						}
+					}
+				}
+				continue;
+			}
+
+			// cd <folder>
 			struct node_filesystem node_fs_buffer;
 			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-				struct node_entry node = node_fs_buffer.nodes[i];
+				node = node_fs_buffer.nodes[i];
 				if (node.parent_node_index == current_dir) {
 					if (strcmpn(input_buf, node.name, 3, strlen(input_buf))) {
 						current_dir = i;
