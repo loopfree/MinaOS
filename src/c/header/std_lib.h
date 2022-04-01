@@ -1,15 +1,11 @@
 #include "std_type.h"
 
 // Operator matematika umum
-// Implementasikan
-// Tips : Gunakan C integer division
 int div(int a, int b);
-
 int mod(int a, int n);
 
-
 // Operasi standar bahasa C
-// Implementasikan
+
 void memcpy(byte *dest, byte *src, unsigned int n);
 // Mengcopy n bytes yang ditunjuk src ke dest
 
@@ -19,8 +15,13 @@ unsigned int strlen(char *string);
 bool strcmp(char *s1, char *s2);
 // Mengembalikan true jika string sama
 
-bool strcmpn(char *s1, char *s2, unsigned int s, unsigned int n);
-// Mengembalikan true jika n huruf pertama sama dengan s1 dimulai dari index s
+bool strcmpn(char *s1, char *s2, unsigned int startIdx, unsigned int endIdx);
+// Mengembalikan true jika substring dari s1 dari startIdx (inclusive) hingga
+// endIdx (exclusive) adalah s2
+
+void strsplit(char dst[][64], char *src) 
+// Melakukan pemisahan string src berdasarkan spasi dengan maksimum panjang
+// partisi adalah 64 karakter
 
 void strcpy(char *dst, char *src);
 // Melakukan penyalinan null terminated string

@@ -368,6 +368,7 @@ void shell() {
 	char path_str[128];
 	byte current_dir = FS_NODE_P_IDX_ROOT;
 	enum fs_retcode return_code = FS_SUCCESS;
+	struct node_filesystem node_fs_buffer;
 	struct node_entry node;
 
 	while (true) {
@@ -394,6 +395,7 @@ void shell() {
 				if(current_dir = FS_NODE_P_IDX_ROOT){		// if 'cd ..' from root directory
 					return_code = FS_W_INVALID_FOLDER;
 				}else{
+					readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 					for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
 						node = node_fs_buffer.nodes[i];
 						if (node.sector_entry_index == current_dir) {
@@ -402,7 +404,6 @@ void shell() {
 						}
 					}
 				}
-				continue;
 			}
 
 			// cd <folder>
@@ -493,7 +494,7 @@ void shell() {
 				printString(&metadata);
 			}
 			else {
-				printString("cat: No such file or directory");
+				printString("cat: No such file or directory\n");
 			}
 		}
 
@@ -512,8 +513,13 @@ void shell() {
 				copy_file(); // perlu implementasi lagi
 			}
 			else {
-				printString("No such file or directory");
+				printString("No such file or directory\n");
 			}
+
+			/*if (ret_code != FS_SUCCESS) {
+				printString("Error: ");
+				printString(ret_code);
+			}*/
 		}
 
 		else

@@ -37,22 +37,38 @@ bool strcmp(char *s1, char *s2) {
 		return false;
 }
 
-// s1 : input
-// s  : start index to read from s1
-// s2 : string to be compared to s1
-// n  : length of string s2
-
-bool strcmpn(char *s1, char *s2, unsigned int s, unsigned int n) {
-	if (strlen(s1) >= n && strlen(s2) >= n) {
-		for (int i=0; i < n; i++) {
-			if (s1[s] != s2[i]) 
+bool strcmpn(char *s1, char *s2, unsigned int startIdx, unsigned int endIdx) {
+	if (strlen(s1) >= endIdx && strlen(s2) >= endIdx) {
+		for (int i=0; i < endIdx; i++) {
+			if (s1[startIdx] != s2[i]) 
 				return false;
-			s += 1;
+			startIdx += 1;
 		}
 		return true;
 	}
 	else 
 		return false;
+}
+
+void strsplit(char dst[][64], char *src) {
+	int j = 0;
+	int k = 0;
+	bool readingspace = true;
+	for (int i = 0; i < strlen(src); i++) {
+		if (src[i] == ' ') {
+			if (readingspace)
+				continue;
+			else {
+				j += 1;
+				k = 0;
+			}
+		}
+		else {
+			dst[j][k] = src[i];
+			k += 1;
+            readingspace = false;
+		}
+	}
 }
 
 void strcpy(char *dst, char *src) {
