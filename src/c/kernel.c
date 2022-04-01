@@ -366,36 +366,36 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 void shell() {
 	char input_buf[64];
 	char path_str[128];
+	char args[4][64];
 	byte current_dir = FS_NODE_P_IDX_ROOT;
-	enum fs_retcode return_code = FS_SUCCESS;
+	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
 	struct node_entry node;
+	struct file_metadata metadata;
+	bool found;
 
 	while (true) {
+		readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+
 		printString("minaOS@IF2230:");
 		printCWD(path_str, current_dir);
 		printString("$");
 		readString(input_buf);
+		strsplit(args, input_buf, ' ');
 
-		// cd dapat memindah current working directory ke folder tujuan
-		// cd dapat naik satu tingkat dengan argumen ..
-		// cd dapat langsung kembali ke root dengan argumen "/"
-
-		// baru implemen cd folder
-		if (strcmpn(input_buf, "cd", 0, 2)) {
-
-			// cd </>
-			if (strcmpn(input_buf, "/", 3, 2)){
+		// Change Directory
+		if (strcmp(args[0], "cd")) {
+			// cd /
+			if (strcmp(args[1], "/")){
 				current_dir = FS_NODE_P_IDX_ROOT;
-				continue;
 			}
 
-			// cd <..>
-			if (strcmpn(input_buf, "..", 3, 2)){
-				if(current_dir = FS_NODE_P_IDX_ROOT){		// if 'cd ..' from root directory
-					return_code = FS_W_INVALID_FOLDER;
-				}else{
-					readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+			// cd ..
+			else if (strcmp(args[1], "..")){
+				if(current_dir = FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
+					printString("Fails to navigate up one directory level because current working dirrectory is root\n");
+				} 
+				else {
 					for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
 						node = node_fs_buffer.nodes[i];
 						if (node.sector_entry_index == current_dir) {
@@ -407,62 +407,59 @@ void shell() {
 			}
 
 			// cd <folder>
-			struct node_filesystem node_fs_buffer;
-			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
-
-			for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-				node = node_fs_buffer.nodes[i];
-				if (node.parent_node_index == current_dir) {
-					if (strcmpn(input_buf, node.name, 3, strlen(input_buf))) {
-						current_dir = i;
-						break;
+			else {
+				found = false;
+				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
+					node = node_fs_buffer.nodes[i];
+					if (node.parent_node_index == current_dir) {
+						if (strcmp(args[1], node.name)) {
+							current_dir = i;
+							found = true;
+						}
 					}
+				}
+				if (!found) {
+					printString("cd: No such file or directory\n");
 				}
 			}
 		}
 
-		// ls dapat memperlihatkan isi pada current working directory
-		// cmd: ls
-		// hasil: folder A
-		//        b
-		// ls dapat memperlihatkan isi folder yang berada pada
-		// current working directory
-		// cmd: ls folder A
-		// hasil: isi folder A
-
-		// baru implemen ls
-		else if (strcmpn(input_buf, "ls", 0, 2)) {
-			struct node_filesystem node_fs_buffer;
-			readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
-			if (strlen(input_buf)==2) // only ls
-			{
+		// List
+		else if (strcmp(args[0], "ls")) {
+			// ls 
+			if (strlen(args[1]) == 0) {
 				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-					struct node_entry node = node_fs_buffer.nodes[i];
+					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
+						printString("\n");
 					}
 				}
 			}
-			else { // ls <folder> -> cd dulu ke dalam <folder> baru ls seperti biasa
-				// melakukan cd
-				struct node_filesystem node_fs_buffer;
-				readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
-				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-					struct node_entry node = node_fs_buffer.nodes[i];
+			// ls <folder>
+			else {
+				// Mencari folder
+				byte folder;
+				found = false;
+				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
+					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
-						if (strcmpn(input_buf, node.name, 3, strlen(input_buf))) {
-							current_dir = i;
-							break;
+						if (strcmp(args[1], node.name)) {
+							folder = i;
 						}
 					}
 				}
+				if (!found) {
+					printString("ls: No such file or directory\n");
+				}
 
-				// melakukan ls
+				// Melakukan ls terhadap folder
 				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
-					struct node_entry node = node_fs_buffer.nodes[i];
+					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
+						printString("\n");
 					}
 				}
 			}
@@ -474,24 +471,23 @@ void shell() {
 		// folder current working directory dengan "../<nama tujuan>"
 		// mv dapat memasukkan file dan folder ke folder yang berada
 		// pada current working directory
-		else if (strcmpn(input_buf, "mv", 0, 2)) {
+		else if (strcmp(args[1], "mv")) {
 			// mv
 		}
 
 		// membuat folder baru pada current working directory
-		else if (strcmpn(input_buf, "mkdir", 0, 5)) {
+		else if (strcmp(args[1], "mkdir")) {
 			create_folder(); // perlu diimplementasikan lagi
 		}
 
 		// menampilkan isi dari file sebagai text file
-		else if (strcmpn(input_buf, "cat", 0, 3)) {
+		else if (strcmp(args[1], "cat")) {
 			// Cari file atau direktori
-			struct file_metadata metadata;
-			int ret_code;
 
 			read(&metadata, &ret_code);
 			if (ret_code == 3) { // file exist
-				printString(&metadata);
+				printString(metadata.buffer);
+				printString("\n");
 			}
 			else {
 				printString("cat: No such file or directory\n");
@@ -500,10 +496,8 @@ void shell() {
 
 		// cp melakukan copy file dari current working directory ke
 		// current working directory
-		else if (strcmpn(input_buf, "cp", 0, 2)) {
+		else if (strcmp(args[1], "cp")) {
 			// Cari file atau direktori
-			struct file_metadata metadata;
-			int ret_code;
 
 			read(&metadata, &ret_code);
 			if (ret_code == 2) { // is folder
@@ -513,7 +507,7 @@ void shell() {
 				copy_file(); // perlu implementasi lagi
 			}
 			else {
-				printString("No such file or directory\n");
+				printString("cp: No such file or directory\n");
 			}
 
 			/*if (ret_code != FS_SUCCESS) {
@@ -522,8 +516,10 @@ void shell() {
 			}*/
 		}
 
-		else
-			printString("Unknown command\r\n");
+		else {
+			printString(args[0]);
+			printString(": Unknown command\r\n");
+		}
 	}
 }
 

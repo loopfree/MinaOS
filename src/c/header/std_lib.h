@@ -19,8 +19,8 @@ bool strcmpn(char *s1, char *s2, unsigned int startIdx, unsigned int endIdx);
 // Mengembalikan true jika substring dari s1 dari startIdx (inclusive) hingga
 // endIdx (exclusive) adalah s2
 
-void strsplit(char dst[][64], char *src) 
-// Melakukan pemisahan string src berdasarkan spasi dengan maksimum panjang
+void strsplit(char dst[][64], char *src, char splitter);
+// Melakukan pemisahan string src berdasarkan splitter dengan maksimum panjang
 // partisi adalah 64 karakter
 
 void strcpy(char *dst, char *src);

@@ -50,13 +50,13 @@ bool strcmpn(char *s1, char *s2, unsigned int startIdx, unsigned int endIdx) {
 		return false;
 }
 
-void strsplit(char dst[][64], char *src) {
+void strsplit(char dst[][64], char *src, char splitter) {
 	int j = 0;
 	int k = 0;
-	bool readingspace = true;
+	bool readingsplitter = true;
 	for (int i = 0; i < strlen(src); i++) {
-		if (src[i] == ' ') {
-			if (readingspace)
+		if (src[i] == splitter) {
+			if (readingsplitter)
 				continue;
 			else {
 				j += 1;
@@ -66,7 +66,7 @@ void strsplit(char dst[][64], char *src) {
 		else {
 			dst[j][k] = src[i];
 			k += 1;
-            readingspace = false;
+            readingsplitter = false;
 		}
 	}
 }
