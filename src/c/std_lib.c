@@ -80,3 +80,22 @@ void clear(byte *ptr, unsigned int n) {
 	for (int i = 0; i < n; i++)
 		ptr[i] = 0;
 }
+
+void concat(char* merge, char* str1, char* str2) {
+	merge[64];
+	int i = 0;
+	int j = 0;
+
+	while (str1[i] != '\0') {
+		merge[j] = str1[i];
+		i += 1;
+		j += 1;
+	}
+
+	i = 0;
+	while (str2[i] != '\0') {
+		merge[j] = str2[i];
+		i += 1;
+		j += 1;
+	}
+}
