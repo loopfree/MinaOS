@@ -29,5 +29,5 @@ void strcpy(char *dst, char *src);
 void clear(byte *ptr, unsigned int n);
 // Mengosongkan byte array yang memiliki panjang n
 
-void concat(char* merge, char* str1, char* str2)
-// Menggabungkan str1 dan str2 menjadi merge
+void strcat(char* dst, char* src1, char* src2)
+// Menggabungkan src1 dan src2 ke dst
