@@ -473,113 +473,76 @@ void shell() {
 		// pada current working directory
 
 		// mv: Move
-		// mv <src> <folder>
+		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
 			char dest[4][64];
 			char argsdir[4][64];
 			byte temp_dir = current_dir;
+			char filerename[64];
 
-			// mv <src> /<folder>
-			// ganti file dan folder ke root
-			// dengan cara ganti idx parentnya ke idx root
-
-			// mv src dest
-			// mv file.txt /folder1
-			// args = [mv, file.txt, /folder1]
-			//         0   1         2
-			// dest = [folder1]
 			strsplit(argsdir, args[2], '/'); 
-			
-			// kalau folder
-			// kalau udah ada masuk
-			// kalah tidak ada rename
 
-			// kalau file
-			// kalau ud ada rename
-			// kalau tidak ada rename
-			if (args[2][0] == '/')) {
+			// mv <src> /<dst>
+			if (args[2][0] == '/') {
 				temp_dir = FS_NODE_P_IDX_ROOT;
+				if (strcmp(argsdir[0], "..")) {
+					printString("mv: Invalid path\n");
+					continue;
+				}
+				strcpy(filerename, argsdir[0]);
 			}
-			
-			// mv SRC DEST
-			if (strlen(argsdir[1]) == 0) {
-				// dapatin node/idx argsdir[0] berdasarkan temp_dir
+
+			// mv <src> ../<dst>
+			else if (strlen(argsdir[1]) != 0) {
+				if (strcmp(argsdir[0], "..")) {
+					temp_dir = node_fs_buffer.nodes[temp_dir].parent_node_index;
+					strcpy(filerename, argsdir[1]);
+				}
+				else {
+					printString("mv: Invalid path\n");
+					continue;
+				}
+			}
+
+			// mv <src> <dst>
+			else {
 				found = false;
 				for (int i=0; i < FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
-					if (node.parent_node_index == current_dir) {
-						temp_dir = i;
+					if (node.parent_node_index == current_dir && strcmp(node.name, args[0])) {
 						found = true;
 					}
 				}
+				if (found) {
+					if (node.parent_node_index == FS_NODE_S_IDX_FOLDER) {
+						temp_dir = argsdir[0];
+						strcpy(filerename, args[1]);
+					}
+					else {
+						printString("mv: Target is a file\n");
+						continue;
+					}
+				}
+				else {
+					strcpy(filerename, argsdir[0]);
+				}
 			}
 
-			// mv SRC ../DEST
-			else if (strcmp(argsdir[1], "..")) {
-				if (current_dir == FS_NODE_P_IDX_ROOT) {
-					printString("mv: Fails to navigate up one directory level because current working dirrectory is root\n")
+			found = false;
+			for (int i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+				node = node_fs_buffer.nodes[i];
+				if (strcmp(args[1], node.name)) {
+					found = true;
 				}
+			}
+
+			if (!found) {
+				printString("mv: No such file or directory");
 			}
 			else {
-				//eror
-				printString("mv: Invalid Command Argument\n");
-				continue;
+				node.parent_node_index = temp_dir;
+				strcpy(node.name, filerename);
 			}
-
-			//dapatin node src, ganti P index
-
-			
-			// mv <src> ../<folder>
-			// ganti file dan folder ke tujuan
-			// dengan caa ganti idx parentnya ke idx parent dari parentnya
-
-			// mv file.txt /folder1
-			// args = [mv, file.txt, ../folder1]
-			//         0   1         2
-			// dest = [folder1]
-			
-			if (strcmp(argument[0] , '..')){
-				strcpy(&dest , argument[1]); // get folder1
-			}
-
-			// mv <file> <folder>
-			
-
-			struct node_entry destNode , srcNode;
-				byte temp_dir = current_dir;
-				
-				strsplit(dest, args[2], '/'); // get folder1
-
-				// get dest's node
-				found = false;
-				int foundidx = 0;
-				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
-					destNode = node_fs_buffer.nodes[i];
-					if (destNode.parent_node_index == FS_NODE_P_IDX_ROOT) { // node's parent idx is ROOT
-						if (strcmp(dest[0], node.name)) {	// folder exists on ROOT directory
-							foundidx = i;
-							found = true;
-						}
-					}
-				}
-				if (!found) {	// folder doesn't exist
-					printString("cd: No such directory\n");
-				}
-
-				// get src's node 
-				found = false;
-				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
-					srcNode = node_fs_buffer.nodes[i];
-					if (srcNode.parent_node_index == current_dir) {
-						if (strcmp(args[1], node.name)) {
-							srcNode.parent_node_index = foundidx;
-							found = true;
-						}
-					}
-				}
-				if (!found) {	// file / folder doesn't exist
-					printString("cd: No such file or directory\n");
-				}
 		}
 
 		// mkdir: Make Directory
