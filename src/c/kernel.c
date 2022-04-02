@@ -187,7 +187,7 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	readSector(&node_fs_buffer , FS_NODE_SECTOR_NUMBER , 0x2);
 
 	// 1. Cari node dengan nama dan lokasi yang sama pada filesystem.
-	for(int i = 0 ; i < FS_NODE_SECTOR_CAP ; i++){
+	for(i = 0 ; i < FS_NODE_SECTOR_CAP ; i++){
 		parent = node_fs_buffer.nodes[i].parent_node_index;
 		if( (parent == metadata->parent_index) && 
 			(strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) )){
@@ -245,6 +245,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	struct map_filesystem    map_fs_buffer;
 	int nodeIdx, sectorIdx;
 	bool found;
+	int i = 0;
 
 	// Masukkan filesystem dari storage ke memori
 	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
@@ -252,7 +253,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	readSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 0x1);
 
 	// 1. Cari node dengan nama dan lokasi parent yang sama pada node.
-	for (int i = 0; i < FS_NODE_SECTOR_CAP; i++) {
+	for (i = 0; i < FS_NODE_SECTOR_CAP; i++) {
 		if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && node_fs_buffer.nodes[i].parent_node_index == metadata->parent_index) {
 			*return_code = FS_W_FILE_ALREADY_EXIST;
 			return;
@@ -261,7 +262,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	
 	// 2. Cari entri kosong pada filesystem node dan simpan indeks.
 	found = false;
-	for (int i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+	for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
 		if (strlen(node_fs_buffer.nodes[i].name) != 0) {
 			nodeIdx = i;
 			found = true;
@@ -280,7 +281,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 	// 4. Cek dan pastikan sisa storage cukup untuk filesize dari metadata.
 	unsigned int availableSector = 0;
-	for (int i = 0; i < FS_MAP_SECTOR_CAP; i++) {
+	for (i = 0; i < FS_MAP_SECTOR_CAP; i++) {
 		if (map_fs_buffer.is_filled[i])
 			availableSector += 1;
 	}
@@ -291,7 +292,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 	// 5. Cek pada filesystem sector apakah terdapat entry yang masih kosong.
 	found = false;
-	for (int i = 0; i < FS_SECTOR_SECTOR_CAP && !found; i++) {
+	for (i = 0; i < FS_SECTOR_SECTOR_CAP && !found; i++) {
 		if (sector_fs_buffer.sector_list[i].sector_numbers[0] == 0x0) {
 			sectorIdx = i;
 			found = true;
@@ -333,7 +334,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 		//    7. Jika ukuran file yang telah tertulis lebih besar atau sama dengan
 		//       filesize pada metadata, penulisan selesai
 		bool finished = false;
-		for (int i = 0; i < 255 && !finished; i++) {
+		for (i = 0; i < 255 && !finished; i++) {
 			if (map_fs_buffer.is_filled[i])
 				continue;
 			
@@ -364,7 +365,8 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 void shell() {
 	char input_buf[64];	clear(input_buf, 64);
 	char path_str[128]; clear(path_str, 128);
-	char args[8][64]; for (int i = 0; i < 8; i++) clear(args[i], 64);
+	int i = 0;
+	char args[8][64]; for (i = 0; i < 8; i++) clear(args[i], 64);
 	byte current_dir = FS_NODE_P_IDX_ROOT;
 	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
@@ -395,17 +397,17 @@ void shell() {
 					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
 				} 
 				else {
-					for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+					for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
 						node = node_fs_buffer.nodes[i];
 						if (node.sector_entry_index == current_dir) {
 							current_dir = node.parent_node_index;
 							break;
 						}
 					}
-					char path_list[8][64]; for (int i = 0; i < 8; i++) clear(path_list[i], 64);
+					char path_list[8][64]; for (i = 0; i < 8; i++) clear(path_list[i], 64);
 					int n = strsplit(path_list, path_str, '/');
 					clear(path_str, strlen(path_str));
-					for (int i = 0; i < n-1; i++) {
+					for (i = 0; i < n-1; i++) {
 						strcat(path_str, path_str, "/");
 						strcat(path_str, path_str, path_list[i]);
 					}
@@ -415,7 +417,7 @@ void shell() {
 			// cd <folder>
 			else {
 				found = false;
-				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
+				for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						if (strcmp(args[1], node.name)) {
@@ -438,7 +440,7 @@ void shell() {
 		else if (strcmp(args[0], "ls")) {
 			// ls 
 			if (strlen(args[1]) == 0) {
-				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+				for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
@@ -452,7 +454,7 @@ void shell() {
 				// Mencari folder
 				byte folder;
 				found = false;
-				for (int i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
+				for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						if (strcmp(args[1], node.name)) {
@@ -465,7 +467,7 @@ void shell() {
 				}
 
 				// Melakukan ls terhadap folder
-				for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
+				for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
@@ -478,7 +480,7 @@ void shell() {
 		// mv: Move
 		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
-			char argsdir[8][64]; for (int i = 0; i < 8; i++) clear(args[i], 64);
+			char argsdir[8][64]; for (i = 0; i < 8; i++) clear(args[i], 64);
 			byte temp_dir = current_dir;
 			char filerename[64]; clear(filerename, 64);
 
@@ -509,7 +511,7 @@ void shell() {
 			// mv <src> <dst>
 			else {
 				found = false;
-				for (int i=0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+				for (i=0; i < FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir && strcmp(node.name, args[0])) {
 						found = true;
@@ -531,7 +533,7 @@ void shell() {
 			}
 
 			found = false;
-			for (int i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+			for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
 				node = node_fs_buffer.nodes[i];
 				if (strcmp(args[1], node.name)) {
 					found = true;
