@@ -490,6 +490,13 @@ void shell() {
 			// dest = [folder1]
 			strsplit(argsdir, args[2], '/'); 
 			
+			// kalau folder
+			// kalau udah ada masuk
+			// kalah tidak ada rename
+
+			// kalau file
+			// kalau ud ada rename
+			// kalau tidak ada rename
 			if (args[2][0] == '/')) {
 				temp_dir = FS_NODE_P_IDX_ROOT;
 			}
@@ -515,6 +522,7 @@ void shell() {
 			}
 			else {
 				//eror
+				printString("mv: Invalid Command Argument\n");
 				continue;
 			}
 
