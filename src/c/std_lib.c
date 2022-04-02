@@ -50,7 +50,7 @@ bool strcmpn(char *s1, char *s2, unsigned int startIdx, unsigned int endIdx) {
 		return false;
 }
 
-void strsplit(char dst[][64], char *src, char splitter) {
+int strsplit(char dst[][64], char *src, char splitter) {
 	int j = 0;
 	int k = 0;
 	bool readingsplitter = true;
@@ -69,6 +69,7 @@ void strsplit(char dst[][64], char *src, char splitter) {
             readingsplitter = false;
 		}
 	}
+	return j;
 }
 
 void strcpy(char *dst, char *src) {

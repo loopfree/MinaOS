@@ -366,7 +366,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 void shell() {
 	char input_buf[64];
 	char path_str[128];
-	char args[4][64];
+	char args[8][64];
 	byte current_dir = FS_NODE_P_IDX_ROOT;
 	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
@@ -379,7 +379,7 @@ void shell() {
 
 		printString("minaOS@IF2230:");
 		printCWD(path_str, current_dir);
-		printString("$");
+		printString("$ ");
 		readString(input_buf);
 		strsplit(args, input_buf, ' ');
 
@@ -388,6 +388,7 @@ void shell() {
 			// cd /
 			if (strcmp(args[1], "/")){
 				current_dir = FS_NODE_P_IDX_ROOT;
+				clear(path_str, strlen(path_str));
 			}
 
 			// cd ..
@@ -402,6 +403,13 @@ void shell() {
 							current_dir = node.parent_node_index;
 							break;
 						}
+					}
+					char path_list[8][64];
+					int n = strsplit(path_list, path_str, '/');
+					clear(path_str, strlen(path_str));
+					for (int i = 0; i < n-1; i++) {
+						strcat(path_str, path_str, "/");
+						strcat(path_str, path_str, path_list[i]);
 					}
 				}
 			}
@@ -420,6 +428,10 @@ void shell() {
 				}
 				if (!found) {
 					printString("cd: No such file or directory\n");
+				}
+				else {
+					strcat(path_str, path_str, "/");
+					strcat(path_str, path_str, node_fs_buffer.nodes[current_dir].name);
 				}
 			}
 		}
@@ -465,18 +477,10 @@ void shell() {
 			}
 		}
 
-		// mv dapat memindahkan file dan folder ke root dengan
-		// "/<nama tujuan>"
-		// mv dapat memindahkan file dan folder ke dalam parent
-		// folder current working directory dengan "../<nama tujuan>"
-		// mv dapat memasukkan file dan folder ke folder yang berada
-		// pada current working directory
-
 		// mv: Move
 		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
-			char dest[4][64];
-			char argsdir[4][64];
+			char argsdir[8][64];
 			byte temp_dir = current_dir;
 			char filerename[64];
 
