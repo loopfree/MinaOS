@@ -274,8 +274,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	}
 	
 	// 3. Cek dan pastikan entry node pada indeks P adalah folder.
-	if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != 0xFF || 
-		strlen(node_fs_buffer.nodes[metadata->parent_index].sector_entry_index == 0)) {
+	if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
 		*return_code = FS_W_INVALID_FOLDER;
 		return;
 	}
@@ -364,9 +363,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 }
 
 void shell() {
-	char input_buf[64];
-	char path_str[128];
-	char args[8][64];
+	char input_buf[64];	clear(input_buf, 64);
+	char path_str[128]; clear(path_str, 128);
+	char args[8][64]; for (int i = 0; i < 8; i++) clear(args[i], 64);
 	byte current_dir = FS_NODE_P_IDX_ROOT;
 	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
@@ -404,7 +403,7 @@ void shell() {
 							break;
 						}
 					}
-					char path_list[8][64];
+					char path_list[8][64]; for (int i = 0; i < 8; i++) clear(path_list[i], 64);
 					int n = strsplit(path_list, path_str, '/');
 					clear(path_str, strlen(path_str));
 					for (int i = 0; i < n-1; i++) {
@@ -480,9 +479,9 @@ void shell() {
 		// mv: Move
 		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
-			char argsdir[8][64];
+			char argsdir[8][64]; for (int i = 0; i < 8; i++) clear(args[i], 64);
 			byte temp_dir = current_dir;
-			char filerename[64];
+			char filerename[64]; clear(filerename, 64);
 
 			strsplit(argsdir, args[2], '/'); 
 
