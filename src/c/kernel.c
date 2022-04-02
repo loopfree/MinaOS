@@ -494,12 +494,24 @@ void shell() {
 				temp_dir = FS_NODE_P_IDX_ROOT;
 			}
 			
+			// mv SRC DEST
 			if (strlen(argsdir[1]) == 0) {
 				// dapatin node/idx argsdir[0] berdasarkan temp_dir
+				found = false;
+				for (int i=0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+					node = node_fs_buffer.nodes[i];
+					if (node.parent_node_index == current_dir) {
+						temp_dir = i;
+						found = true;
+					}
+				}
 			}
 
+			// mv SRC ../DEST
 			else if (strcmp(argsdir[1], "..")) {
-
+				if (current_dir == FS_NODE_P_IDX_ROOT) {
+					printString("mv: Fails to navigate up one directory level because current working dirrectory is root\n")
+				}
 			}
 			else {
 				//eror
