@@ -383,7 +383,7 @@ void shell() {
 		readString(input_buf);
 		strsplit(args, input_buf, ' ');
 
-		// Change Directory
+		// cd: Change Directory
 		if (strcmp(args[0], "cd")) {
 			// cd /
 			if (strcmp(args[1], "/")){
@@ -393,7 +393,7 @@ void shell() {
 			// cd ..
 			else if (strcmp(args[1], "..")){
 				if(current_dir = FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
-					printString("Fails to navigate up one directory level because current working dirrectory is root\n");
+					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
 				} 
 				else {
 					for (int i=0; i<FS_NODE_SECTOR_CAP; i++) {
@@ -424,7 +424,7 @@ void shell() {
 			}
 		}
 
-		// List
+		// ls: List
 		else if (strcmp(args[0], "ls")) {
 			// ls 
 			if (strlen(args[1]) == 0) {
@@ -471,54 +471,102 @@ void shell() {
 		// folder current working directory dengan "../<nama tujuan>"
 		// mv dapat memasukkan file dan folder ke folder yang berada
 		// pada current working directory
-		else if (strcmp(args[1], "mv")) {
+		else if (strcmp(args[0], "mv")) {
 			// mv
 		}
 
-		// membuat folder baru pada current working directory
-		else if (strcmp(args[1], "mkdir")) {
-			create_folder(); // perlu diimplementasikan lagi
+		// mkdir: Make Directory
+		// mkdir <folder>
+		else if (strcmp(args[0], "mkdir")) {
+			strcpy(metadata.node_name, args[1]);
+			metadata.parent_index = current_dir;
+			metadata.filesize = 0;
+			write(&metadata, &ret_code);
+
+			if (ret_code == FS_SUCCESS) {
+
+			}
+			else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
+				printString("mkdir: File or directory already exists\n");
+			}
+			else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
+				printString("mkdir: Not enough storage\n");
+			}
+			else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
+				printString("mkdir: Maximum node entry\n");
+			}
+			else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
+				printString("mkdir: Maximum sector entry\n");
+			}
+			else if (ret_code == FS_W_INVALID_FOLDER) {
+				printString("mkdir: Invalid folder\n");
+			}
 		}
 
-		// menampilkan isi dari file sebagai text file
-		else if (strcmp(args[1], "cat")) {
-			// Cari file atau direktori
-
+		// cat: Concatenate
+		// cat <file>
+		else if (strcmp(args[0], "cat")) {
+			strcpy(metadata.node_name, args[1]);
+			metadata.parent_index = current_dir;
 			read(&metadata, &ret_code);
-			if (ret_code == 3) { // file exist
+			if (ret_code == FS_SUCCESS) { // file exist
 				printString(metadata.buffer);
 				printString("\n");
 			}
-			else {
+			else if (ret_code == FS_R_NODE_NOT_FOUND) {
 				printString("cat: No such file or directory\n");
+			}
+			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
+				printString("cat: Target is a directory\n");
 			}
 		}
 
-		// cp melakukan copy file dari current working directory ke
-		// current working directory
-		else if (strcmp(args[1], "cp")) {
-			// Cari file atau direktori
+		// cp: Copy
+		// cp <file_1> <file_2>
+		else if (strcmp(args[0], "cp")) {
+			if (strlen(args[1]) == 0 || strlen(args[2]) == 0) {
+				printString("cp: Invalid arguments\n");
+			}
+
+			metadata.parent_index = current_dir;
+			strcpy(metadata.node_name, args[1]);
 
 			read(&metadata, &ret_code);
-			if (ret_code == 2) { // is folder
-				copy_folder(); // perlu implementasi lagi
+			if (ret_code == FS_SUCCESS) {
+				strcpy(metadata.node_name, args[2]);
+				write(&metadata, &ret_code);
+
+				if (ret_code == FS_SUCCESS) {
+
+				}
+				else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
+					printString("cp: File already exists\n");
+				}
+				else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
+					printString("cp: Not enough storage\n");
+				}
+				else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
+					printString("cp: Maximum node entry\n");
+				}
+				else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
+					printString("cp: Maximum sector entry\n");
+				}
+				else if (ret_code == FS_W_INVALID_FOLDER) {
+					printString("cp: Invalid folder\n");
+				}
+
 			}
-			else if (ret_code == 3) { // file exist
-				copy_file(); // perlu implementasi lagi
-			}
-			else {
+			else if (ret_code == FS_R_NODE_NOT_FOUND) {
 				printString("cp: No such file or directory\n");
 			}
-
-			/*if (ret_code != FS_SUCCESS) {
-				printString("Error: ");
-				printString(ret_code);
-			}*/
+			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
+				printString("cp: Cannot copy directory\n");
+			}
 		}
 
 		else {
 			printString(args[0]);
-			printString(": Unknown command\r\n");
+			printString(": Unknown command\n");
 		}
 	}
 }
