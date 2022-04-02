@@ -9,15 +9,14 @@
 
 int main() {
 	fillMap();
-	char buf[128];
+	//char buf[128];
 	clearScreen();
 	makeInterrupt21();
 
 	printString("Halo dunia!\r\n");
-	readString(buf);
-	printString(buf);
+	shell();
 
-	while(true);
+	//while(true);
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
