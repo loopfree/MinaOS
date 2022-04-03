@@ -412,24 +412,18 @@ void shell() {
 			}
 
 			// cd /
-			if (strcmp(args[1], "/")){
+			if (strcmp(args[1], "/")) {
 				current_dir = FS_NODE_P_IDX_ROOT;
 				clear(path_str, strlen(path_str));
 			}
 
 			// cd ..
 			else if (strcmp(args[1], "..")){
-				if(current_dir = FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
+				if (current_dir == FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
 					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\r\n");
 				} 
 				else {
-					for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
-						node = node_fs_buffer.nodes[i];
-						if (node.sector_entry_index == current_dir) {
-							current_dir = node.parent_node_index;
-							break;
-						}
-					}
+					current_dir = node_fs_buffer.nodes[current_dir].parent_node_index;
 				}
 			}
 
@@ -447,6 +441,10 @@ void shell() {
 				}
 				if (!found) {
 					printString("cd: No such file or directory\r\n");
+				}
+				else {
+					printString(node.name);
+					printString("\r\n");
 				}
 			}
 		}
@@ -473,19 +471,21 @@ void shell() {
 					if (node.parent_node_index == current_dir) {
 						if (strcmp(args[1], node.name)) {
 							folder = i;
+							found = true;
 						}
 					}
 				}
 				if (!found) {
 					printString("ls: No such file or directory\r\n");
 				}
-
 				// Melakukan ls terhadap folder
-				for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
-					node = node_fs_buffer.nodes[i];
-					if (node.parent_node_index == current_dir) {
-						printString(node.name);
-						printString("\r\n");
+				else {
+					for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
+						node = node_fs_buffer.nodes[i];
+						if (node.parent_node_index == folder) {
+							printString(node.name);
+							printString("\r\n");
+						}
 					}
 				}
 			}
