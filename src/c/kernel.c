@@ -214,26 +214,22 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	// 0. Memasukkan isi sector filesystem dari storage ke memory
 	readSector(&sector_fs_buffer , FS_SECTOR_SECTOR_NUMBER , 0x1);
 	// 1. memcpy() entry sector sesuai dengan byte S
-	memcpy( &sector,
-			&sector_fs_buffer.sector_list[sector_idx],
-			16);
+	memcpy( &sector, &(sector_fs_buffer.sector_list[sector_idx]), 16);
 	// 2. Lakukan iterasi proses berikut, i = 0..15
 	// 3. Baca byte entry sector untuk mendapatkan sector number partisi file
 	// 4. Jika byte bernilai 0, selesaikan iterasi
 	// 5. Jika byte valid, lakukan readSector()
 	//    dan masukkan kedalam buffer yang disediakan pada metadata
 	// 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
-	while (i < 16){
-		if(sector.sector_numbers[i] == 0x0){
-			break;
-		}else{
-			readSector(metadata->buffer , sector.sector_numbers[i] , 0x1);
-		}
+	i = 0;
+	while (i < 16 && sector.sector_numbers[i] != 0x0){
+		readSector(metadata->buffer, sector.sector_numbers[i] , 0x1);
 		i++;
 	}
+	
 	// 7. Tulis retcode FS_SUCCESS dan ganti filesize pada akhir proses pembacaan.
 	*return_code = FS_SUCCESS;
-	metadata->filesize = i;
+	metadata->filesize = i * 512;
 	return;
 }
 
@@ -388,6 +384,7 @@ void shell() {
 	while (true) {
 		clear(input_buf, 64);
 		clear(filerename, 64);
+		clear(&metadata, 16);
 		for (i = 0; i < 8; i++) clear(args[i], 64);
 		for (i = 0; i < 8; i++) clear(argsdir[i], 64);
 	
@@ -433,18 +430,14 @@ void shell() {
 				for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
-						if (strcmp(args[1], node.name)) {
+						if (strcmp(args[1], node.name) && node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
 							current_dir = i;
 							found = true;
 						}
 					}
 				}
 				if (!found) {
-					printString("cd: No such file or directory\r\n");
-				}
-				else {
-					printString(node.name);
-					printString("\r\n");
+					printString("cd: No such directory\r\n");
 				}
 			}
 		}
@@ -455,7 +448,7 @@ void shell() {
 			if (strlen(args[1]) == 0) {
 				for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
 					node = node_fs_buffer.nodes[i];
-					if (node.parent_node_index == current_dir) {
+					if (node.parent_node_index == current_dir && strlen(node.name) != 0) {
 						printString(node.name);
 						printString("\r\n");
 					}
@@ -482,7 +475,7 @@ void shell() {
 				else {
 					for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
 						node = node_fs_buffer.nodes[i];
-						if (node.parent_node_index == folder) {
+						if (node.parent_node_index == folder && strlen(node.name) != 0) {
 							printString(node.name);
 							printString("\r\n");
 						}
@@ -608,6 +601,7 @@ void shell() {
 
 			strcpy(metadata.node_name, args[1]);
 			metadata.parent_index = current_dir;
+
 			read(&metadata, &ret_code);
 			if (ret_code == FS_SUCCESS) { // file exist
 				printString(metadata.buffer);
