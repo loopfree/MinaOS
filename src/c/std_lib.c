@@ -26,6 +26,27 @@ unsigned int strlen(char *string) {
 	return i;
 }
 
+void inttostr(int src , char* s){
+	int number = src;
+	int digit , idx , i = 0;
+	char digits[64];
+	char temp;
+
+	while(number != 0){
+		digit = number % 10;
+		digits[i] = digit;
+		i++;
+		number /= 10;
+	}
+
+	for(idx = 0; idx < i/2 ; idx++){
+		temp = digits[idx];
+		digits[idx] = digits[i-idx];
+		digits[i-idx] = temp;
+	}
+	strcpy(s , &digits);
+}
+
 bool strcmp(char *s1, char *s2) {
 	int i;
 	if (strlen(s1) == strlen(s2)) {
