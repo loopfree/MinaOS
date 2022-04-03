@@ -5,8 +5,8 @@
 #include "header/filesystem.h"
 
 int main() {
-	fillMap();
 	clearScreen();
+	fillMap();
 	makeInterrupt21();
 	shell();
 }
@@ -44,6 +44,14 @@ void printString(char *string){
 	}
 }
 
+/*
+void printInt(int n) {
+	char str[64];
+	clear(str, 64);
+	inttostr(n, str);
+	printString(str);
+}
+*/
 void readString(char *string)
 {
 	int i=0;
@@ -159,13 +167,6 @@ void fillMap() {
 		map_fs_buffer.is_filled[i] = true;
 	}
 
-	for (i = 0; i < 512; i++) {
-		if (map_fs_buffer.is_filled[i] == true)
-			printString("1");
-		else 
-			printString("0");
-	}
-
 	// Update filesystem map
 	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 0x1);
 }
@@ -181,6 +182,9 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	byte sector_idx;
 	int foundindex = 0;
 	int i = 0;
+	char buf[8192];
+
+	clear(buf, 8192);
 
 	// Memasukkan filesystem dari storage ke memori buffer
 	readSector(&node_fs_buffer , FS_NODE_SECTOR_NUMBER , 0x2);
@@ -222,8 +226,9 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	//    dan masukkan kedalam buffer yang disediakan pada metadata
 	// 6. Lompat ke iterasi selanjutnya hingga iterasi selesai
 	i = 0;
+	metadata->buffer = buf;
 	while (i < 16 && sector.sector_numbers[i] != 0x0){
-		readSector(metadata->buffer, sector.sector_numbers[i] , 0x1);
+		readSector(metadata->buffer+i*512, sector.sector_numbers[i], 0x1);
 		i++;
 	}
 	
@@ -369,7 +374,9 @@ void shell() {
 	char path_str[128]; 
 	char args[8][64]; 
 	char argsdir[8][64];
-	char filerename[64]; 
+	char filerename[64];
+	struct sector_filesystem sector_fs_buffer;
+	struct sector_entry sector;
 	
 	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;

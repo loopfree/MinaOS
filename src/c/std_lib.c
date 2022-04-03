@@ -26,6 +26,7 @@ unsigned int strlen(char *string) {
 	return i;
 }
 
+/*
 void inttostr(int src , char* s){
 	int number = src;
 	int digit , idx , i = 0;
@@ -33,10 +34,10 @@ void inttostr(int src , char* s){
 	char temp;
 
 	while(number != 0){
-		digit = number % 10;
+		digit = mod(number, 10);
 		digits[i] = digit;
 		i++;
-		number /= 10;
+		number = div(number, 10);
 	}
 
 	for(idx = 0; idx < i/2 ; idx++){
@@ -44,8 +45,9 @@ void inttostr(int src , char* s){
 		digits[idx] = digits[i-idx];
 		digits[i-idx] = temp;
 	}
-	strcpy(s , &digits);
+	strcpy(s , digits);
 }
+*/
 
 bool strcmp(char *s1, char *s2) {
 	int i;

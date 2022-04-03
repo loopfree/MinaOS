@@ -11,8 +11,8 @@ void handleInterrupt21(int AX, int BX, int CX, int DX);
 void fillMap();
 
 
-// TODO : Implementasikan
 void printString(char *string);
+//void printInt(int n);
 void readString(char *string);
 void clearScreen();
 
