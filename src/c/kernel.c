@@ -36,13 +36,28 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	}
 }
 
-void printString(char *string){
+void printStringHelper(char *string){
 	int i = 0;
 	while (string[i] != 0x0) {
 	    interrupt(0x10, 0xE*256 + string[i], 0, 0, 0);
 		i += 1;
 	}
 }
+
+void printString(char *string){
+	int i = 0;
+	while (string[i] != 0x0) {
+		if (string[i] != 0xD16) { // bukan enter
+			interrupt(0x10, 0xE*256 + string[i], 0, 0, 0);
+			i += 1;
+		}
+		else { // enter
+			printStringHelper("\r\n");
+		}
+
+	}
+}
+
 
 /*
 void printInt(int n) {
