@@ -32,32 +32,23 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	   		write(BX, CX);
 	   		break;
 	    default:
-	    	printString("Invalid interrupt\r\n");
-	}
-}
-
-void printStringHelper(char *string){
-	int i = 0;
-	while (string[i] != 0x0) {
-	    interrupt(0x10, 0xE*256 + string[i], 0, 0, 0);
-		i += 1;
+	    	printString("Invalid interrupt\n");
 	}
 }
 
 void printString(char *string){
 	int i = 0;
 	while (string[i] != 0x0) {
-		if (string[i] != 0xD16) { // bukan enter
-			interrupt(0x10, 0xE*256 + string[i], 0, 0, 0);
-			i += 1;
+		if (string[i] != 0xA) { // bukan enter
+			interrupt(0x10, 0xE00 + string[i], 0, 0, 0);
 		}
 		else { // enter
-			printStringHelper("\r\n");
+			interrupt(0x10, 0xE0D, 0, 0, 0);
+			interrupt(0x10, 0xE0A, 0, 0, 0);
 		}
-
+		i += 1;
 	}
 }
-
 
 /*
 void printInt(int n) {
@@ -67,6 +58,7 @@ void printInt(int n) {
 	printString(str);
 }
 */
+
 void readString(char *string)
 {
 	int i=0;
@@ -426,7 +418,7 @@ void shell() {
 		// cd: Change Directory
 		if (strcmp(args[0], "cd")) {
 			if (strlen(args[1]) == 0) {
-				printString("cd: Missing operands\r\n");
+				printString("cd: Missing operands\n");
 				continue;
 			}
 
@@ -439,7 +431,7 @@ void shell() {
 			// cd ..
 			else if (strcmp(args[1], "..")){
 				if (current_dir == FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
-					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\r\n");
+					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
 				} 
 				else {
 					current_dir = node_fs_buffer.nodes[current_dir].parent_node_index;
@@ -459,7 +451,7 @@ void shell() {
 					}
 				}
 				if (!found) {
-					printString("cd: No such directory\r\n");
+					printString("cd: No such directory\n");
 				}
 			}
 		}
@@ -472,7 +464,7 @@ void shell() {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir && strlen(node.name) != 0) {
 						printString(node.name);
-						printString("\r\n");
+						printString("\n");
 					}
 				}
 			}
@@ -491,7 +483,7 @@ void shell() {
 					}
 				}
 				if (!found) {
-					printString("ls: No such file or directory\r\n");
+					printString("ls: No such file or directory\n");
 				}
 				// Melakukan ls terhadap folder
 				else {
@@ -499,7 +491,7 @@ void shell() {
 						node = node_fs_buffer.nodes[i];
 						if (node.parent_node_index == folder && strlen(node.name) != 0) {
 							printString(node.name);
-							printString("\r\n");
+							printString("\n");
 						}
 					}
 				}
@@ -510,7 +502,7 @@ void shell() {
 		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
 			if (strlen(args[1]) == 0 || strlen(args[2]) == 0) {
-				printString("mv: Missing operands\r\n");
+				printString("mv: Missing operands\n");
 				continue;
 			}
 
@@ -521,7 +513,7 @@ void shell() {
 			if (args[2][0] == '/') {
 				temp_dir = FS_NODE_P_IDX_ROOT;
 				if (strcmp(argsdir[0], "..")) {
-					printString("mv: Invalid path\r\n");
+					printString("mv: Invalid path\n");
 					continue;
 				}
 				strcpy(filerename, argsdir[0]);
@@ -534,7 +526,7 @@ void shell() {
 					strcpy(filerename, argsdir[1]);
 				}
 				else {
-					printString("mv: Invalid path\r\n");
+					printString("mv: Invalid path\n");
 					continue;
 				}
 			}
@@ -554,7 +546,7 @@ void shell() {
 						strcpy(filerename, args[1]);
 					}
 					else {
-						printString("mv: Target is a file\r\n");
+						printString("mv: Target is a file\n");
 						continue;
 					}
 				}
@@ -584,7 +576,7 @@ void shell() {
 		// mkdir <folder>
 		else if (strcmp(args[0], "mkdir")) {
 			if (strlen(args[1]) == 0) {
-				printString("mkdir: Missing operands\r\n");
+				printString("mkdir: Missing operands\n");
 				continue;
 			}
 
@@ -597,19 +589,19 @@ void shell() {
 				
 			}
 			else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-				printString("mkdir: File or directory already exists\r\n");
+				printString("mkdir: File or directory already exists\n");
 			}
 			else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-				printString("mkdir: Not enough storage\r\n");
+				printString("mkdir: Not enough storage\n");
 			}
 			else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-				printString("mkdir: Maximum node entry\r\n");
+				printString("mkdir: Maximum node entry\n");
 			}
 			else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-				printString("mkdir: Maximum sector entry\r\n");
+				printString("mkdir: Maximum sector entry\n");
 			}
 			else if (ret_code == FS_W_INVALID_FOLDER) {
-				printString("mkdir: Invalid folder\r\n");
+				printString("mkdir: Invalid folder\n");
 			}
 		}
 
@@ -617,7 +609,7 @@ void shell() {
 		// cat <file>
 		else if (strcmp(args[0], "cat")) {
 			if (strlen(args[1]) == 0) {
-				printString("cat: Missing operands\r\n");
+				printString("cat: Missing operands\n");
 				continue;
 			}
 
@@ -627,13 +619,13 @@ void shell() {
 			read(&metadata, &ret_code);
 			if (ret_code == FS_SUCCESS) { // file exist
 				printString(metadata.buffer);
-				printString("\r\n");
+				printString("\n");
 			}
 			else if (ret_code == FS_R_NODE_NOT_FOUND) {
-				printString("cat: No such file or directory\r\n");
+				printString("cat: No such file or directory\n");
 			}
 			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
-				printString("cat: Target is a directory\r\n");
+				printString("cat: Target is a directory\n");
 			}
 		}
 
@@ -641,7 +633,7 @@ void shell() {
 		// cp <file_1> <file_2>
 		else if (strcmp(args[0], "cp")) {
 			if (strlen(args[1]) == 0 || strlen(args[2]) == 0) {
-				printString("cp: Missing operands\r\n");
+				printString("cp: Missing operands\n");
 			}
 
 			metadata.parent_index = current_dir;
@@ -656,33 +648,33 @@ void shell() {
 
 				}
 				else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-					printString("cp: File already exists\r\n");
+					printString("cp: File already exists\n");
 				}
 				else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-					printString("cp: Not enough storage\r\n");
+					printString("cp: Not enough storage\n");
 				}
 				else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-					printString("cp: Maximum node entry\r\n");
+					printString("cp: Maximum node entry\n");
 				}
 				else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-					printString("cp: Maximum sector entry\r\n");
+					printString("cp: Maximum sector entry\n");
 				}
 				else if (ret_code == FS_W_INVALID_FOLDER) {
-					printString("cp: Invalid folder\r\n");
+					printString("cp: Invalid folder\n");
 				}
 
 			}
 			else if (ret_code == FS_R_NODE_NOT_FOUND) {
-				printString("cp: No such file or directory\r\n");
+				printString("cp: No such file or directory\n");
 			}
 			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
-				printString("cp: Cannot copy directory\r\n");
+				printString("cp: Cannot copy directory\n");
 			}
 		}
 
 		else {
 			printString(args[0]);
-			printString(": Unknown command\r\n");
+			printString(": Unknown command\n");
 		}
 	}
 }
