@@ -1,22 +1,14 @@
 // Kode kernel
 // PENTING : FUNGSI PERTAMA YANG DIDEFINISIKAN ADALAH main(),
-//   cek spesifikasi untuk informasi lebih lanjut
-
-// TODO : Tambahkan implementasi kode C
 
 #include "header/kernel.h"
 #include "header/filesystem.h"
 
 int main() {
 	fillMap();
-	//char buf[128];
 	clearScreen();
 	makeInterrupt21();
-
-	printString("Halo dunia!\r\n");
 	shell();
-
-	//while(true);
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
@@ -40,7 +32,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	   		write(BX, CX);
 	   		break;
 	    default:
-	    	printString("Invalid interrupt");
+	    	printString("Invalid interrupt\r\n");
 	}
 }
 
@@ -144,8 +136,8 @@ void writeSector (byte *buffer, int sector_number, int sector_read_count) {
     drive = 0x00;                                // DL
 
     interrupt(
-        0x03,                       // Interrupt number
-        0x0301 | sector_read_count, // AX
+        0x13,                       // Interrupt number
+        0x0300 | sector_read_count, // AX
         buffer,                     // BX
         cylinder | sector,          // CX
         head | drive                // DX
@@ -167,8 +159,15 @@ void fillMap() {
 		map_fs_buffer.is_filled[i] = true;
 	}
 
+	for (i = 0; i < 512; i++) {
+		if (map_fs_buffer.is_filled[i] == true)
+			printString("1");
+		else 
+			printString("0");
+	}
+
 	// Update filesystem map
-	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 1);
+	writeSector(&map_fs_buffer, FS_MAP_SECTOR_NUMBER, 0x1);
 }
 
 
@@ -244,8 +243,12 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	struct sector_filesystem sector_fs_buffer;
 	struct map_filesystem    map_fs_buffer;
 	int nodeIdx, sectorIdx;
-	bool found;
-	int i = 0;
+	bool found, finished;
+	int i, j;
+	int availableSector = 0;
+	byte buffer[16];
+
+	clear(buffer, 16);
 
 	// Masukkan filesystem dari storage ke memori
 	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
@@ -254,7 +257,8 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 	// 1. Cari node dengan nama dan lokasi parent yang sama pada node.
 	for (i = 0; i < FS_NODE_SECTOR_CAP; i++) {
-		if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) && node_fs_buffer.nodes[i].parent_node_index == metadata->parent_index) {
+		if (strcmp(node_fs_buffer.nodes[i].name, metadata->node_name) 
+			&& node_fs_buffer.nodes[i].parent_node_index == metadata->parent_index) {
 			*return_code = FS_W_FILE_ALREADY_EXIST;
 			return;
 		}
@@ -263,7 +267,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	// 2. Cari entri kosong pada filesystem node dan simpan indeks.
 	found = false;
 	for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
-		if (strlen(node_fs_buffer.nodes[i].name) != 0) {
+		if (strlen(node_fs_buffer.nodes[i].name) == 0) {
 			nodeIdx = i;
 			found = true;
 		}	
@@ -274,13 +278,14 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 	}
 	
 	// 3. Cek dan pastikan entry node pada indeks P adalah folder.
-	if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
-		*return_code = FS_W_INVALID_FOLDER;
-		return;
+	if (metadata->parent_index != FS_NODE_P_IDX_ROOT) {
+		if (node_fs_buffer.nodes[metadata->parent_index].sector_entry_index != FS_NODE_S_IDX_FOLDER) {
+			*return_code = FS_W_INVALID_FOLDER;
+			return;
+		}
 	}
 
 	// 4. Cek dan pastikan sisa storage cukup untuk filesize dari metadata.
-	unsigned int availableSector = 0;
 	for (i = 0; i < FS_MAP_SECTOR_CAP; i++) {
 		if (map_fs_buffer.is_filled[i])
 			availableSector += 1;
@@ -318,9 +323,9 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 		// 3. Jika menulis file, tuliskan juga byte S sesuai indeks sector
 		node_fs_buffer.nodes[nodeIdx].sector_entry_index = sectorIdx;
 		// 4. Persiapkan variabel j = 0 untuk iterator entry sector yang kosong
-		int j = 0;
+		j = 0;
 		// 5. Persiapkan variabel buffer untuk entry sector kosong
-		byte buffer[16];
+		clear(buffer, 16);
 		
 		// 6. Lakukan iterasi berikut dengan kondisi perulangan 
 		// 		(penulisan belum selesai && i = 0..255)
@@ -333,7 +338,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 		//       dan sektor tujuan i
 		//    7. Jika ukuran file yang telah tertulis lebih besar atau sama dengan
 		//       filesize pada metadata, penulisan selesai
-		bool finished = false;
+		finished = false;
 		for (i = 0; i < 255 && !finished; i++) {
 			if (map_fs_buffer.is_filled[i])
 				continue;
@@ -363,28 +368,49 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 }
 
 void shell() {
-	char input_buf[64];	clear(input_buf, 64);
-	char path_str[128]; clear(path_str, 128);
-	int i = 0;
-	char args[8][64]; for (i = 0; i < 8; i++) clear(args[i], 64);
-	byte current_dir = FS_NODE_P_IDX_ROOT;
+	int i, j, n;
+	char input_buf[64];	
+	char path_str[128]; 
+	char args[8][64]; 
+	char argsdir[8][64];
+	char filerename[64]; 
+	
 	enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
 	struct node_entry node;
 	struct file_metadata metadata;
+	byte current_dir = FS_NODE_P_IDX_ROOT;
 	bool found;
-
+	byte folder, temp_dir;
+	
+	clear(path_str, 128);
+	
 	while (true) {
+		clear(input_buf, 64);
+		clear(filerename, 64);
+		for (i = 0; i < 8; i++) clear(args[i], 64);
+		for (i = 0; i < 8; i++) clear(argsdir[i], 64);
+	
 		readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 		printString("minaOS@IF2230:");
 		printCWD(path_str, current_dir);
+		printString(path_str);
 		printString("$ ");
 		readString(input_buf);
 		strsplit(args, input_buf, ' ');
 
+		if (strlen(args[0]) == 0) {
+			continue;
+		}
+
 		// cd: Change Directory
 		if (strcmp(args[0], "cd")) {
+			if (strlen(args[1]) == 0) {
+				printString("cd: Missing operands\r\n");
+				continue;
+			}
+
 			// cd /
 			if (strcmp(args[1], "/")){
 				current_dir = FS_NODE_P_IDX_ROOT;
@@ -394,7 +420,7 @@ void shell() {
 			// cd ..
 			else if (strcmp(args[1], "..")){
 				if(current_dir = FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
-					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
+					printString("cd: Fails to navigate up one directory level because current working dirrectory is root\r\n");
 				} 
 				else {
 					for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
@@ -403,13 +429,6 @@ void shell() {
 							current_dir = node.parent_node_index;
 							break;
 						}
-					}
-					char path_list[8][64]; for (i = 0; i < 8; i++) clear(path_list[i], 64);
-					int n = strsplit(path_list, path_str, '/');
-					clear(path_str, strlen(path_str));
-					for (i = 0; i < n-1; i++) {
-						strcat(path_str, path_str, "/");
-						strcat(path_str, path_str, path_list[i]);
 					}
 				}
 			}
@@ -427,11 +446,7 @@ void shell() {
 					}
 				}
 				if (!found) {
-					printString("cd: No such file or directory\n");
-				}
-				else {
-					strcat(path_str, path_str, "/");
-					strcat(path_str, path_str, node_fs_buffer.nodes[current_dir].name);
+					printString("cd: No such file or directory\r\n");
 				}
 			}
 		}
@@ -444,7 +459,7 @@ void shell() {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
-						printString("\n");
+						printString("\r\n");
 					}
 				}
 			}
@@ -452,7 +467,6 @@ void shell() {
 			// ls <folder>
 			else {
 				// Mencari folder
-				byte folder;
 				found = false;
 				for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
 					node = node_fs_buffer.nodes[i];
@@ -463,7 +477,7 @@ void shell() {
 					}
 				}
 				if (!found) {
-					printString("ls: No such file or directory\n");
+					printString("ls: No such file or directory\r\n");
 				}
 
 				// Melakukan ls terhadap folder
@@ -471,7 +485,7 @@ void shell() {
 					node = node_fs_buffer.nodes[i];
 					if (node.parent_node_index == current_dir) {
 						printString(node.name);
-						printString("\n");
+						printString("\r\n");
 					}
 				}
 			}
@@ -480,17 +494,19 @@ void shell() {
 		// mv: Move
 		// mv <src> <dst>
 		else if (strcmp(args[0], "mv")) {
-			char argsdir[8][64]; for (i = 0; i < 8; i++) clear(args[i], 64);
-			byte temp_dir = current_dir;
-			char filerename[64]; clear(filerename, 64);
+			if (strlen(args[1]) == 0 || strlen(args[2]) == 0) {
+				printString("mv: Missing operands\r\n");
+				continue;
+			}
 
+			temp_dir = current_dir;
 			strsplit(argsdir, args[2], '/'); 
 
 			// mv <src> /<dst>
 			if (args[2][0] == '/') {
 				temp_dir = FS_NODE_P_IDX_ROOT;
 				if (strcmp(argsdir[0], "..")) {
-					printString("mv: Invalid path\n");
+					printString("mv: Invalid path\r\n");
 					continue;
 				}
 				strcpy(filerename, argsdir[0]);
@@ -503,7 +519,7 @@ void shell() {
 					strcpy(filerename, argsdir[1]);
 				}
 				else {
-					printString("mv: Invalid path\n");
+					printString("mv: Invalid path\r\n");
 					continue;
 				}
 			}
@@ -523,7 +539,7 @@ void shell() {
 						strcpy(filerename, args[1]);
 					}
 					else {
-						printString("mv: Target is a file\n");
+						printString("mv: Target is a file\r\n");
 						continue;
 					}
 				}
@@ -552,46 +568,56 @@ void shell() {
 		// mkdir: Make Directory
 		// mkdir <folder>
 		else if (strcmp(args[0], "mkdir")) {
+			if (strlen(args[1]) == 0) {
+				printString("mkdir: Missing operands\r\n");
+				continue;
+			}
+
 			strcpy(metadata.node_name, args[1]);
 			metadata.parent_index = current_dir;
 			metadata.filesize = 0;
 			write(&metadata, &ret_code);
 
 			if (ret_code == FS_SUCCESS) {
-
+				
 			}
 			else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-				printString("mkdir: File or directory already exists\n");
+				printString("mkdir: File or directory already exists\r\n");
 			}
 			else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-				printString("mkdir: Not enough storage\n");
+				printString("mkdir: Not enough storage\r\n");
 			}
 			else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-				printString("mkdir: Maximum node entry\n");
+				printString("mkdir: Maximum node entry\r\n");
 			}
 			else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-				printString("mkdir: Maximum sector entry\n");
+				printString("mkdir: Maximum sector entry\r\n");
 			}
 			else if (ret_code == FS_W_INVALID_FOLDER) {
-				printString("mkdir: Invalid folder\n");
+				printString("mkdir: Invalid folder\r\n");
 			}
 		}
 
 		// cat: Concatenate
 		// cat <file>
 		else if (strcmp(args[0], "cat")) {
+			if (strlen(args[1]) == 0) {
+				printString("cat: Missing operands\r\n");
+				continue;
+			}
+
 			strcpy(metadata.node_name, args[1]);
 			metadata.parent_index = current_dir;
 			read(&metadata, &ret_code);
 			if (ret_code == FS_SUCCESS) { // file exist
 				printString(metadata.buffer);
-				printString("\n");
+				printString("\r\n");
 			}
 			else if (ret_code == FS_R_NODE_NOT_FOUND) {
-				printString("cat: No such file or directory\n");
+				printString("cat: No such file or directory\r\n");
 			}
 			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
-				printString("cat: Target is a directory\n");
+				printString("cat: Target is a directory\r\n");
 			}
 		}
 
@@ -599,7 +625,7 @@ void shell() {
 		// cp <file_1> <file_2>
 		else if (strcmp(args[0], "cp")) {
 			if (strlen(args[1]) == 0 || strlen(args[2]) == 0) {
-				printString("cp: Invalid arguments\n");
+				printString("cp: Missing operands\r\n");
 			}
 
 			metadata.parent_index = current_dir;
@@ -614,45 +640,51 @@ void shell() {
 
 				}
 				else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-					printString("cp: File already exists\n");
+					printString("cp: File already exists\r\n");
 				}
 				else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-					printString("cp: Not enough storage\n");
+					printString("cp: Not enough storage\r\n");
 				}
 				else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-					printString("cp: Maximum node entry\n");
+					printString("cp: Maximum node entry\r\n");
 				}
 				else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-					printString("cp: Maximum sector entry\n");
+					printString("cp: Maximum sector entry\r\n");
 				}
 				else if (ret_code == FS_W_INVALID_FOLDER) {
-					printString("cp: Invalid folder\n");
+					printString("cp: Invalid folder\r\n");
 				}
 
 			}
 			else if (ret_code == FS_R_NODE_NOT_FOUND) {
-				printString("cp: No such file or directory\n");
+				printString("cp: No such file or directory\r\n");
 			}
 			else if (ret_code == FS_R_TYPE_IS_FOLDER) {
-				printString("cp: Cannot copy directory\n");
+				printString("cp: Cannot copy directory\r\n");
 			}
 		}
 
 		else {
 			printString(args[0]);
-			printString(": Unknown command\n");
+			printString(": Unknown command\r\n");
 		}
 	}
 }
 
 void printCWD(char* path, byte cwd) {
 	struct node_filesystem node_fs_buffer;
+	struct node_entry node;
+	byte temp_dir = cwd;
+
+	clear(path, 128);
 	readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 2);
 
-	printString(path);
-	if (cwd == FS_NODE_P_IDX_ROOT) 
-		printString("~");
-	else
-		printString("/");
-		printString(node_fs_buffer.nodes[cwd].name);
+	while (temp_dir != FS_NODE_P_IDX_ROOT) {
+		node = node_fs_buffer.nodes[temp_dir];
+		temp_dir = node.parent_node_index;
+		strcat(path, node.name, path);
+		strcat(path, "/", path);
+	}
+
+	strcat(path, "~", path);
 }

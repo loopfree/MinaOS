@@ -91,17 +91,26 @@ void clear(byte *ptr, unsigned int n) {
 void strcat(char* dst, char* src1, char* src2) {
 	int i = 0;
 	int j = 0;
+	char str1[128];
+	char str2[128];
 
-	while (src1[i] != '\0') {
-		dst[j] = src1[i];
+	clear(str1, 128);
+	clear(str2, 128);
+	
+	strcpy(str1, src1);
+	strcpy(str2, src2);
+
+	while (str1[i] != '\0') {
+		dst[j] = str1[i];
 		i += 1;
 		j += 1;
 	}
 
 	i = 0;
-	while (src2[i] != '\0') {
-		dst[j] = src2[i];
+	while (str2[i] != '\0') {
+		dst[j] = str2[i];
 		i += 1;
 		j += 1;
 	}
 }
+
