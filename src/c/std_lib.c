@@ -53,7 +53,7 @@ bool abs(int* number){
 
 #define INTCAP 64
 
-void inttostr(int src , char* s){
+void itoa(int src , char* s){
 	int number = src;
 	int digit , lastDigitIdx ,i;
 	bool isNegative;
