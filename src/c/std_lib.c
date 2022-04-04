@@ -26,28 +26,51 @@ unsigned int strlen(char *string) {
 	return i;
 }
 
-/*
+// void swap(char *x, char *y){
+//     char t;
+// 	t = *x;
+// 	*x = *y;
+// 	*y = t;
+// }
+
+// char* reverse(char *buffer, int i, int j){
+//     while (i < j){
+//         swap(&buffer[i++], &buffer[j--]);
+//     }
+//     return buffer;
+// }
+
+int abs(int number){
+	return number * (-1);
+}
+
+#define INTCAP 64
+
 void inttostr(int src , char* s){
 	int number = src;
-	int digit , idx , i = 0;
-	char digits[64];
-	char temp;
+	int digit , lastDigitIdx ,i;
+	bool isNegative = false;
+	char digits[INTCAP];
+	i = INTCAP - 1;
+
+	if(src < 0){
+		isNegative = true;
+		number = abs(src);
+	}
 
 	while(number != 0){
 		digit = mod(number, 10);
-		digits[i] = digit;
-		i++;
+		digits[i] = digit + 48;		// 48 ..57 in ASCII : 0..9
+		i--;
 		number = div(number, 10);
 	}
-
-	for(idx = 0; idx < i/2 ; idx++){
-		temp = digits[idx];
-		digits[idx] = digits[i-idx];
-		digits[i-idx] = temp;
+	if(isNegative){
+		digits[i] = 45;				// 45 in ASCII : '-' sign
 	}
+
 	strcpy(s , digits);
 }
-*/
+
 
 bool strcmp(char *s1, char *s2) {
 	int i;

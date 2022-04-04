@@ -405,10 +405,10 @@ void shell() {
 		readSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 		printString("minaOS@IF2230:");
-		printCWD(path_str, current_dir);
-		printString(path_str);
+		printCWD(path_str, current_dir);				// print path to cwd
+		printString(path_str);							// print path
 		printString("$ ");
-		readString(input_buf);
+		readString(input_buf);							// input command
 		strsplit(args, input_buf, ' ');
 
 		if (strlen(args[0]) == 0) {
