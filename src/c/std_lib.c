@@ -40,8 +40,15 @@ unsigned int strlen(char *string) {
 //     return buffer;
 // }
 
-int abs(int number){
-	return number * (-1);
+bool abs(int* number){
+	bool neg = false;
+	if (*number < 0){
+		neg = true;
+		*number *= -1;
+	}else{
+		// do nothing
+	}
+	return neg;
 }
 
 #define INTCAP 64
@@ -49,14 +56,11 @@ int abs(int number){
 void inttostr(int src , char* s){
 	int number = src;
 	int digit , lastDigitIdx ,i;
-	bool isNegative = false;
+	bool isNegative;
 	char digits[INTCAP];
 	i = INTCAP - 1;
 
-	if(src < 0){
-		isNegative = true;
-		number = abs(src);
-	}
+	isNegative = abs(&number);
 
 	while(number != 0){
 		digit = mod(number, 10);
@@ -65,7 +69,7 @@ void inttostr(int src , char* s){
 		number = div(number, 10);
 	}
 	if(isNegative){
-		digits[i] = 45;				// 45 in ASCII : '-' sign
+		digits[i] = '-';
 	}
 
 	strcpy(s , digits);

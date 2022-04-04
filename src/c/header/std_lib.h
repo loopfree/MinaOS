@@ -12,10 +12,12 @@ void memcpy(byte *dest, byte *src, unsigned int n);
 unsigned int strlen(char *string);
 // Mengembalikan panjang suatu null terminated string
 
-/*
-void inttostr(int src , char* s);
+bool abs(int* number);
+// megnubah nilai number menjadi positif
+// mengembalikan keadaan awal number (- / +)
+
+void itoa(int src , char* s);
 // mengubah integer menjadi list of char
-*/
 
 bool strcmp(char *s1, char *s2);
 // Mengembalikan true jika string sama
