@@ -295,7 +295,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 
 	// 4. Cek dan pastikan sisa storage cukup untuk filesize dari metadata.
 	for (i = 0; i < FS_MAP_SECTOR_CAP; i++) {
-		if (map_fs_buffer.is_filled[i])
+		if (!map_fs_buffer.is_filled[i])
 			availableSector += 1;
 	}
 	if (metadata->filesize > availableSector * 512) {
@@ -512,11 +512,11 @@ void shell() {
 			// mv <src> /<dst>
 			if (args[2][0] == '/') {
 				temp_dir = FS_NODE_P_IDX_ROOT;
+				strcpy(filerename, argsdir[0]);
 				if (strcmp(argsdir[0], "..")) {
 					printString("mv: Invalid path\n");
 					continue;
 				}
-				strcpy(filerename, argsdir[0]);
 			}
 
 			// mv <src> ../<dst>
@@ -533,32 +533,37 @@ void shell() {
 
 			// mv <src> <dst>
 			else {
-				found = false;
-				for (i=0; i < FS_NODE_SECTOR_CAP && !found; i++) {
-					node = node_fs_buffer.nodes[i];
-					if (node.parent_node_index == current_dir && strcmp(node.name, args[0])) {
-						found = true;
-					}
-				}
-				if (found) {
-					if (node.parent_node_index == FS_NODE_S_IDX_FOLDER) {
-						temp_dir = argsdir[0];
-						strcpy(filerename, args[1]);
-					}
-					else {
-						printString("mv: Target is a file\n");
-						continue;
-					}
-				}
-				else {
-					strcpy(filerename, argsdir[0]);
-				}
+				strcpy(filerename, argsdir[0]);
 			}
 
+			// find dest
 			found = false;
 			for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
 				node = node_fs_buffer.nodes[i];
-				if (strcmp(args[1], node.name)) {
+				if (node.parent_node_index == temp_dir && strcmp(node.name, filerename)) {
+					j = i;
+					found = true;
+				}
+			}
+			if (found) {
+				// 'dest' is a folder
+				if (node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+					temp_dir = j;
+					strcpy(filerename, args[1]);
+				}
+				// 'dest' is a file
+				else {
+					printString("mv: Target is a file and already exists\n");
+					continue;
+				}
+			}
+
+			// find src
+			found = false;
+			for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
+				node = node_fs_buffer.nodes[i];
+				if (node.parent_node_index == current_dir && strcmp(args[1], node.name)) {
+					j = i;
 					found = true;
 				}
 			}
@@ -567,8 +572,9 @@ void shell() {
 				printString("mv: No such file or directory");
 			}
 			else {
-				node.parent_node_index = temp_dir;
-				strcpy(node.name, filerename);
+				node_fs_buffer.nodes[j].parent_node_index = temp_dir;
+				strcpy(node_fs_buffer.nodes[j].name, filerename);
+				writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 			}
 		}
 
