@@ -41,26 +41,26 @@
   <tr>
     <td align="center">3</td>
     <td>read</td>
-    <td>Melakukan pembacaan pada filesystem.</td>
+    <td>Melakukan pembacaan file.</td>
   </tr>
 
   <tr>
     <td align="center">4</td>
     <td>write</td>
-    <td>Melakukan penulisan file atau folder ke filsystem.</td>
+    <td>Melakukan penulisan file atau folder ke filesystem.</td>
   </tr>
 
 <table>
 
 ## Daftar Utility Shell
 
-| No  | Utility Shell |                        Command                        | Deskripsi                                                                        |
-| :-: | :-----------: | :---------------------------------------------------: | -------------------------------------------------------------------------------- |
-|  1  |      cd       |             `cd <folder>` `cd ..` `cd /`              | Merupakan alat dasar untuk melakukan navigasi pada filesystem.                   |
-|  2  |      ls       |                  `ls <folder>` `ls`                   | Memperlihatkan konten yang ada pada current working directory.                   |
-|  3  |      mv       | `mv <SRC> <DST>` `mv <SRC> /<DST>` `mv <SRC> ..<DST>` | Melakukan operasi rename atau memindahkan file maupun folder.                    |
-|  4  |     mkdir     |                   `mkdir <folder>`                    | Membuat suatu folder baru pada current working directory.                        |
-|  5  |      cat      |                     `cat <file>`                      | Menampilkan isi dari suatu file sebagai text file.                               |
-|  6  |      cp       |        `cp <file/directory> <file/directory>`         | Melakukan copy file dari current working directory ke current working directory. |
+| No  | Utility Shell |                           Tampilan Command                           | Deskripsi                                                                        |
+| :-: | :-----------: | :------------------------------------------------------------------: | -------------------------------------------------------------------------------- |
+|  1  |      cd       |                     `cd <folder>` `cd ..` `cd /`                     | Merupakan alat dasar untuk melakukan navigasi pada filesystem.                   |
+|  2  |      ls       |                          `ls <folder>` `ls`                          | Memperlihatkan konten yang ada pada current working directory.                   |
+|  3  |      mv       | `mv <SRC> <DST>` <br /> `mv <SRC> /<DST>` <br /> `mv <SRC> ../<DST>` | Melakukan operasi rename dan/atau memindahkan file maupun folder.                |
+|  4  |     mkdir     |                           `mkdir <folder>`                           | Membuat suatu folder baru pada current working directory.                        |
+|  5  |      cat      |                             `cat <file>`                             | Menampilkan isi dari suatu file sebagai text file.                               |
+|  6  |      cp       |                          `cp <file> <file>`                          | Melakukan copy file dari current working directory ke current working directory. |
 
 [BACK](README.md)
