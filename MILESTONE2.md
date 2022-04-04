@@ -54,49 +54,13 @@
 
 ## Daftar Utility Shell
 
-<table>
-  <tr>
-    <td align="center">No</td>
-    <td align="center">Utility Shell</td>
-    <td align="center">Deskripsi</td>
-  </tr>
-
-  <tr>
-    <td align="center">1</td>
-    <td align="center">cd</td>
-    <td>Merupakan alat dasar untuk melakukan navigasi pada filesystem.</td>
-  </tr>
-
-  <tr>
-    <td align="center">2</td>
-    <td align="center">ls</td>
-    <td>Memperlihatkan konten yang ada pada current working directory.</td>
-  </tr>
-
-  <tr>
-    <td align="center">3</td>
-    <td align="center">mv</td>
-    <td>Melakukan operasi rename atau memindahkan file maupun folder.</td>
-  </tr>
-
-  <tr>
-    <td align="center">4</td>
-    <td align="center">mkdir</td>
-    <td>Membuat suatu folder baru pada current working directory.</td>
-  </tr>
-
-  <tr>
-    <td align="center">5</td>
-    <td align="center">cat</td>
-    <td>Menampilkan isi dari suatu file sebagai text file.</td>
-  </tr>
-
-  <tr>
-    <td align="center">6</td>
-    <td align="center">cp</td>
-    <td>Melakukan copy file dari current working directory ke current working directory.</td>
-  </tr>
-
-<table>
+| No  | Utility Shell |                        Command                        | Deskripsi                                                                        |
+| :-: | :-----------: | :---------------------------------------------------: | -------------------------------------------------------------------------------- |
+|  1  |      cd       |             `cd <folder>` `cd ..` `cd /`              | Merupakan alat dasar untuk melakukan navigasi pada filesystem.                   |
+|  2  |      ls       |                  `ls <folder>` `ls`                   | Memperlihatkan konten yang ada pada current working directory.                   |
+|  3  |      mv       | `mv <SRC> <DST>` `mv <SRC> /<DST>` `mv <SRC> ..<DST>` | Melakukan operasi rename atau memindahkan file maupun folder.                    |
+|  4  |     mkdir     |                   `mkdir <folder>`                    | Membuat suatu folder baru pada current working directory.                        |
+|  5  |      cat      |                     `cat <file>`                      | Menampilkan isi dari suatu file sebagai text file.                               |
+|  6  |      cp       |        `cp <file/directory> <file/directory>`         | Melakukan copy file dari current working directory ke current working directory. |
 
 [BACK](README.md)
