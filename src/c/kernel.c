@@ -354,7 +354,7 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code) {
 			map_fs_buffer.is_filled[i] = true;
 			buffer[j] = i;
 			j += 1;
-			writeSector(metadata->buffer, i, 1);
+			writeSector(metadata->buffer + (j-1)*512, i, 1);
 
 			if (j * 512 >= metadata->filesize)
 				finished = true;
