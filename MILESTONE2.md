@@ -28,26 +28,26 @@
 
   <tr>
     <td align="center">1</td>
-    <td>readSector</td>
-    <td>Baca sektor yang ada di dalam storage image ke memory.</td>
+    <td align="center">readSector</td>
+    <td align="justify">Baca sektor yang ada di dalam storage image ke memory.</td>
   </tr>
 
   <tr>
     <td align="center">2</td>
-    <td>writeSector</td>
-    <td>Tulis sektor yang ada di dalam memory ke storage image.</td>
+    <td align="center">writeSector</td>
+    <td align="justify">Tulis sektor yang ada di dalam memory ke storage image.</td>
   </tr>
 
   <tr>
     <td align="center">3</td>
-    <td>read</td>
-    <td>Melakukan pembacaan file.</td>
+    <td align="center">read</td>
+    <td align="justify">Melakukan pembacaan file.</td>
   </tr>
 
   <tr>
     <td align="center">4</td>
-    <td>write</td>
-    <td>Melakukan penulisan file atau folder ke filesystem.</td>
+    <td align="center">write</td>
+    <td align="justify">Melakukan penulisan file atau folder ke filesystem.</td>
   </tr>
 
 <table>
