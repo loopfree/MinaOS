@@ -31,10 +31,34 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 	   	case 0x5:
 	   		write(BX, CX);
 	   		break;
+		case 0x6:
+            executeProgram(BX, CX);
+            break;
 	    default:
 	    	printString("Invalid interrupt\n");
 	}
 }
+
+void executeProgram(struct file_metadata *metadata, int segment) {
+  enum fs_retcode fs_ret;
+  byte buf[8192];
+  
+  metadata->buffer = buf;
+  read(metadata, &fs_ret);
+  if (fs_ret == FS_SUCCESS) {
+    int i = 0;
+    for (i = 0; i < 8192; i++) {
+      if (i < metadata->filesize)
+        putInMemory(segment, i, metadata->buffer[i]);
+      else
+        putInMemory(segment, i, 0x00);
+    }
+    launchProgram(segment);
+  }
+  else
+    printString("exec: file not found\r\n");
+}
+
 
 void printString(char *string){
 	int i = 0;
@@ -678,6 +702,14 @@ void shell() {
 			}
 		}
 
+		// TEST
+		else if (strcmp(args[0], "test")) {
+			struct file_metadata meta;
+			meta.node_name    = "shell";
+			meta.parent_index = 0xFF;
+			executeProgram(&meta, 0x2000);
+		}
+		
 		else {
 			printString(args[0]);
 			printString(": Unknown command\n");

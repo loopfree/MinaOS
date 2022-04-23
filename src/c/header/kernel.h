@@ -25,3 +25,6 @@ void read(struct file_metadata *metadata, enum fs_retcode *return_code);
 void shell();
 
 void printCWD(char* path, byte cwd);
+
+extern void launchProgram(int segment);
+void executeProgram(struct file_metadata *metadata, int segment);
