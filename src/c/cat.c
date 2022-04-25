@@ -12,9 +12,10 @@ int main() {
     get_message(&msg);
     // msg.arg1
 
+    int prog_seg = program_segment(msg.arg0);
+
     if (strlen(msg.arg1) == 0) {
         printString("cat: Missing operands\n");
-        continue;
     }
 
     strcpy(metadata.node_name, msg.arg1);
@@ -32,5 +33,5 @@ int main() {
         printString("cat: Target is a directory\n");
     }
 
-    exit();
+    exit(prog_seg);
 }

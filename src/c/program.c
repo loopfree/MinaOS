@@ -8,11 +8,11 @@ void exec(char* filename, CX) {
     interrupt(0x21, 0x6, filename, CX, 0x0);
 }
 
-void exit() {
+void exit(int prog_seg) {
     // keluar dari program dan reload
     struct file_metadata meta;
     meta.node_name    = "shell";
     meta.parent_index = 0x00;
 
-    exec(meta, 0x2000);
+    exec(meta, prog_seg);
 }

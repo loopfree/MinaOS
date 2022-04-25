@@ -12,9 +12,10 @@ int main() {
     get_message(&msg);
     // msg.arg1
 
+    int prog_seg = program_segment(msg.arg0);
+
     if (strlen(msg.arg1) == 0) {
         printString("mkdir: Missing operands\n");
-        continue;
     }
 
     strcpy(metadata.node_name, msg.arg1);
@@ -41,5 +42,5 @@ int main() {
         printString("mkdir: Invalid folder\n");
     }
 
-    exit();
+    exit(prog_seg);
 }
