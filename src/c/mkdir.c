@@ -12,8 +12,6 @@ int main() {
     get_message(&msg);
     // msg.arg1
 
-    int prog_seg = program_segment(msg.arg0);
-
     if (strlen(msg.arg1) == 0) {
         printString("mkdir: Missing operands\n");
     }
@@ -42,5 +40,5 @@ int main() {
         printString("mkdir: Invalid folder\n");
     }
 
-    exit(prog_seg);
+    exit(msg.next_program_segment);
 }

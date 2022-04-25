@@ -12,8 +12,6 @@ int main() {
     get_message(&msg);
     // msg.arg1
 
-    int prog_seg = program_segment(msg.arg0);
-
     if (strlen(msg.arg1) == 0 || strlen(msg.arg2) == 0) {
         printString("cp: Missing operands\n");
     }
@@ -53,5 +51,5 @@ int main() {
         printString("cp: Cannot copy directory\n");
     }
 
-    exit(prog_seg);
+    exit(msg.next_program_segment);
 }
