@@ -7,6 +7,8 @@
 
 int main() {
     struct message msg;
+    struct file_metadata metadata;
+    enum fs_retcode ret_code;
     get_message(&msg);
     // msg.arg1
 
