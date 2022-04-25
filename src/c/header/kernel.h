@@ -1,4 +1,5 @@
-// Kernel header
+#ifndef KERNEL_H
+#define KERNEL_H
 
 #include "std_type.h"
 #include "std_lib.h"
@@ -23,3 +24,5 @@ void printCWD(char* path, byte cwd);
 
 extern void launchProgram(int segment);
 void executeProgram(struct file_metadata *metadata, int segment);
+
+#endif

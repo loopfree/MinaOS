@@ -1,3 +1,6 @@
+#ifndef STD_LIB_H
+#define STD_LIB_H
+
 #include "std_type.h"
 
 // Operator matematika umum
@@ -38,3 +41,5 @@ void clear(byte *ptr, unsigned int n);
 
 void strcat(char* dst, char* src1, char* src2);
 // Menggabungkan src1 dan src2 ke dst
+
+#endif

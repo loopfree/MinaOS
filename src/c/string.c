@@ -43,7 +43,7 @@ bool strcmp(char *s1, char *s2) {
 		return false;
 }
 
-int strsplit(char dst[][64], char *src, char splitter) {
+int strsplit(char dst[][256], char *src, char splitter) {
 	int i;
 	int j = 0;
 	int k = 0;
@@ -75,11 +75,11 @@ void strcpy(char *dst, char *src) {
 void strcat(char* dst, char* src1, char* src2) {
 	int i = 0;
 	int j = 0;
-	char str1[128];
-	char str2[128];
+	char str1[1024];
+	char str2[1024];
 
-	clear(str1, 128);
-	clear(str2, 128);
+	clear(str1, 1024);
+	clear(str2, 12024);
 	
 	strcpy(str1, src1);
 	strcpy(str2, src2);

@@ -5,10 +5,13 @@
 #include "header/filesystem.h"
 
 int main() {
-	clearScreen();
+	struct file_metadata meta;
 	fillMap();
 	makeInterrupt21();
-	shell();
+	clearScreen();
+	meta.node_name = "shell";
+	meta.parent_index = 0x00;
+	executeProgram(&meta, 0x2000);
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {

@@ -1,7 +1,7 @@
-//  textio header
+#ifndef TEXTIO_H
+#define TEXTIO_H
 
-// int puts (string s)
 int puts(char *string);
+char* gets(char *string);
 
-// char *gets (string s)
-char *gets(char *string);
+#endif
