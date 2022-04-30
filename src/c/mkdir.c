@@ -1,11 +1,9 @@
 #include "header/filesystem.h"
-#include "header/std_type.h"
+#include "header/string.h"
 #include "header/textio.h"
 #include "header/fileio.h"
 #include "header/program.h"
 #include "header/utils.h"
-
-extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
 int main() {
     struct message msg;

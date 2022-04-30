@@ -4,8 +4,6 @@
 #include "header/program.h"
 #include "header/utils.h"
 
-extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
-
 int main() {
     struct message msg;
     struct file_metadata metadata;
