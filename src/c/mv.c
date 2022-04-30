@@ -93,8 +93,8 @@ int main() {
         node_fs_buffer.nodes[j].parent_node_index = temp_dir;
         strcpy(node_fs_buffer.nodes[j].name, filerename);
         // writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
-        interrupt(0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2, 0x0);
+        interrupt(0x21, 0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
     }
 
-    exit(msg.next_program_segment);
+    exit();
 }

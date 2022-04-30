@@ -56,5 +56,5 @@ int main() {
         }
     }
 
-    exit(msg.next_program_segment);
+    exit();
 }

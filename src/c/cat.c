@@ -21,7 +21,7 @@ int main() {
     metadata.parent_index = msg.current_directory;
 
     // read(&metadata, &ret_code);
-    interrupt(0x4, &metadata, &ret_code, 0x0, 0x0);
+    interrupt(0x21, 0x4, &metadata, &ret_code, 0x0);
 
     if (ret_code == FS_SUCCESS) { // file exist
         puts(metadata.buffer);
@@ -34,5 +34,5 @@ int main() {
         puts("cat: Target is a directory\n");
     }
 
-    exit(msg.next_program_segment);
+    exit();
 }

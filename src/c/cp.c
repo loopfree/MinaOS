@@ -21,12 +21,12 @@ int main() {
     strcpy(metadata.node_name, msg.arg2);
 
     // read(&metadata, &ret_code);
-    interrupt(0x4, &metadata, &ret_code, 0x0, 0x0);
+    interrupt(0x21, 0x4, &metadata, &ret_code, 0x0);
 
     if (ret_code == FS_SUCCESS) {
         strcpy(metadata.node_name, msg.arg3);
         // write(&metadata, &ret_code);
-        interrupt(0x5, &metadata, &ret_code, 0x0, 0x0);
+        interrupt(0x21, 0x5, &metadata, &ret_code, 0x0);
 
         if (ret_code == FS_SUCCESS) {
         }
@@ -54,5 +54,5 @@ int main() {
         puts("cp: Cannot copy directory\n");
     }
 
-    exit(msg.next_program_segment);
+    exit();
 }

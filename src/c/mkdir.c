@@ -21,7 +21,7 @@ int main() {
     metadata.parent_index = msg.current_directory;
     metadata.filesize = 0;
     // write(&metadata, &ret_code);
-    interrupt(0x5, &metadata, &ret_code, 0x0, 0x0);
+    interrupt(0x21, 0x5, &metadata, &ret_code, 0x0);
 
     if (ret_code == FS_SUCCESS) {
         
@@ -42,5 +42,5 @@ int main() {
         puts("mkdir: Invalid folder\n");
     }
 
-    exit(msg.next_program_segment);
+    exit();
 }

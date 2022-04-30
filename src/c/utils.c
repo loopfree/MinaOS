@@ -45,28 +45,28 @@ void set_message(byte current_directory, char* args, bool init) {
     }
 
     // writeSector(&msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1, 0x0);
+    interrupt(0x21, 0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
 }
 
 void get_message(struct message* msg) {
     clear(msg, sizeof(struct message));
     // readSector(msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1, 0x0);
+    interrupt(0x21, 0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
 }
 
 void reload_message() {
     struct message msg;
     clear(&msg, sizeof(struct message));
     // readSector(msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1, 0x0);
+    interrupt(0x21, 0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
     set_message(msg.current_directory, msg.other);
 }
 
 void set_cwd(byte current_directory) {
     struct message msg;
     // readSector(&msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x2, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1, 0x0);
+    interrupt(0x21, 0x2, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
     msg.current_directory = current_directory;
     // writeSector(&msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
+    interrupt(0x21, 0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
 }
