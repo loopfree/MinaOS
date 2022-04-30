@@ -17,7 +17,7 @@
 1. Mula-mula, jalankan perintah berikut pada terminal
 
     ```bash
-    make build run
+    make build-run
     ```
 
 2. Tunggu hingga loading selesai, lalu ketik `c` dan disusul dengan mengetik `q`
