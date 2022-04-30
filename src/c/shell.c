@@ -5,6 +5,7 @@
 #include "header/program.h"
 
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
+void printCWD(char* path, byte cwd);
 
 int main() {
     char input_buf[512];

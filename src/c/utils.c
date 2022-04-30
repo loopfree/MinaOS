@@ -33,6 +33,7 @@ void set_message(byte current_directory, char* args, bool init) {
     argmc = strsplit(argsmini, temp[0], ' ');
     if (argmc >= 1) {
         strcpy(&msg.arg1, argsmini[0]);
+    }
     if (argmc >= 2) {
         strcpy(&msg.arg2, argsmini[1]);
     }
@@ -59,7 +60,7 @@ void reload_message() {
     clear(&msg, sizeof(struct message));
     // readSector(msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
     interrupt(0x21, 0x2, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    set_message(msg.current_directory, msg.other);
+    set_message(msg.current_directory, msg.other, false);
 }
 
 void set_cwd(byte current_directory) {

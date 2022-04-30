@@ -1,10 +1,6 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef _PROGRAM_H
+#define _PROGRAM_H
 
-#include "filesystem.h"
-#include "std_type.h"
-#include "std_lib.h"
-#include "string.h"
 #include "fileio.h"
 #include "utils.h"
 

@@ -35,7 +35,7 @@ int main() {
             puts("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
         } 
         else {
-            set_cws(node_fs_buffer.nodes[msg.current_directory].parent_node_index);
+            set_cwd(node_fs_buffer.nodes[msg.current_directory].parent_node_index);
         }
     }
 

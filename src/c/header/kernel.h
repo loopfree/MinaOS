@@ -1,6 +1,3 @@
-#ifndef KERNEL_H
-#define KERNEL_H
-
 #include "std_type.h"
 #include "std_lib.h"
 #include "filesystem.h"
@@ -25,5 +22,3 @@ void write(struct file_metadata *metadata, enum fs_retcode *return_code);
 
 extern void launchProgram(int segment);
 void executeProgram(struct file_metadata *metadata, int segment);
-
-#endif
