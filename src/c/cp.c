@@ -50,6 +50,5 @@ int main() {
         puts("cp: Cannot copy directory\n");
     }
 
-    reload_message();
     exit();
 }

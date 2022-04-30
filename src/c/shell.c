@@ -24,7 +24,7 @@ int main() {
 	puts("$ ");
 	gets(input_buf);								// input command
 
-	set_message(input_buf, true);
+	set_message(msg.current_directory, input_buf);
     exit();
 }
 

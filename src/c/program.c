@@ -20,6 +20,7 @@ void exit() {
     clear(&meta, sizeof(struct file_metadata));
     clear(&msg, sizeof(struct message));
 
+    reload_message();
     get_message(&msg);
 
     if (msg.next_program_segment == 0x2000) {

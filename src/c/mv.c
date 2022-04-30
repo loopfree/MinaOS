@@ -93,6 +93,5 @@ int main() {
         interrupt(0x21, 0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
     }
 
-    reload_message();
     exit();
 }

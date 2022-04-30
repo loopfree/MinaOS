@@ -59,6 +59,5 @@ int main() {
         }
     }
 
-    reload_message();
     exit();
 }

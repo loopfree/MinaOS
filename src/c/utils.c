@@ -2,18 +2,31 @@
 
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
-void set_message(char* args, bool init) {
+void set_message(byte current_dir, char* args) {
+    struct message msg;
+    clear(&msg, sizeof(struct message));
+    msg.current_directory = current_dir;
+    msg.next_program_segment = 0x2000;
+    strcpy(msg.other, args);
+    interrupt(0x21, 0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
+}
+
+void reload_message() {
     struct message msg;
     int argc, argmc;
     char temp[8][256];
     char argsmini[8][256];
+    char args[315];
     int i;
     byte temp_dir;
     bool segfault = false;
 
+    clear(args, 315);
+
     // store currdir
     get_message(&msg);
     temp_dir = msg.current_directory;
+    strcpy(args, msg.other);
 
     // mem clear
     clear(&msg, sizeof(struct message));
@@ -33,15 +46,11 @@ void set_message(char* args, bool init) {
         msg.next_program_segment = 0x2000;
     }
     else {
-        if (init)
-            msg.next_program_segment = 0x3000;
+        if (getCurrentSegment() == 0x7000) {
+            segfault = true;
+        }
         else {
-            if (getCurrentSegment() == 0x7000) {
-                segfault = true;
-            }
-            else {
-                msg.next_program_segment = getCurrentSegment() + 0x1000;
-            }
+            msg.next_program_segment = getCurrentSegment() + 0x1000;
         }
 
         if (segfault) {
@@ -71,13 +80,6 @@ void set_message(char* args, bool init) {
 void get_message(struct message* msg) {
     clear(msg, sizeof(struct message));
     interrupt(0x21, 0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-}
-
-void reload_message() {
-    struct message msg;
-    clear(&msg, sizeof(struct message));
-    interrupt(0x21, 0x2, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    set_message(msg.other, false);
 }
 
 void set_cwd(byte current_directory) {

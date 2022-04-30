@@ -18,7 +18,7 @@ struct message {
 
 extern int getCurrentSegment();
 
-void set_message(char* args, bool init);
+void set_message(byte current_dir, char* args);
 // Menyimpan message ke filesystem sektor berdasarkan cwd dan
 // input dari shell
 
