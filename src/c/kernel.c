@@ -8,6 +8,7 @@ int main() {
 	fillMap();
 	makeInterrupt21();
 	clearScreen();
+	set_cwd(FS_NODE_P_IDX_ROOT);
 	meta.node_name = "shell";
 	meta.parent_index = 0x00;
 	executeProgram(&meta, 0x2000);
@@ -36,15 +37,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 		case 0x6:
             executeProgram(BX, CX);
             break;
-		case 0x7:
-			launchProgram(BX);
-			break;
-		case 0x8:
-			clearScreen();
-			break;
-		case 0x9:
-			printCWD(BX, CX);
-			break;
 	    default:
 	    	printString("Invalid interrupt\n");
 	}
