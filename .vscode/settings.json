@@ -4,6 +4,7 @@
         "std_type.h": "c",
         "filesystem.h": "c",
         "utils.h": "c",
-        "fileio.h": "c"
+        "fileio.h": "c",
+        "kernel.h": "c"
     }
 }

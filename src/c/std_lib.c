@@ -20,20 +20,6 @@ void memcpy(byte *dest, byte *src, unsigned int n) {
 	}
 }
 
-// void swap(char *x, char *y){
-//     char t;
-// 	t = *x;
-// 	*x = *y;
-// 	*y = t;
-// }
-
-// char* reverse(char *buffer, int i, int j){
-//     while (i < j){
-//         swap(&buffer[i++], &buffer[j--]);
-//     }
-//     return buffer;
-// }
-
 bool abs(int* number){
 	bool neg = false;
 	if (*number < 0){
