@@ -2,17 +2,18 @@
 
 ## Milestone
 
-- [Milestone 1](MILESTONE1.md)
-- [Milestone 2](MILESTONE2.md)
+-   [Milestone 1](MILESTONE1.md)
+-   [Milestone 2](MILESTONE2.md)
+-   [Milestone 3](MILESTONE3.md)
 
 ## Requirement
 
-- nasm
-- bcc
-- bin86
-- bochs
-- bochs-x
-- make
+-   nasm
+-   bcc
+-   bin86
+-   bochs
+-   bochs-x
+-   make
 
 ## How to Run
 
@@ -22,10 +23,9 @@ make build-run
 
 ## Author
 
+<font size="5px">K02 Kelompok 5 <font color="#3edbf0"><strong>MinaOS</strong></font></font>
+
 <table>
-    <tr>
-        <td colspan = 3 align = "center">K02 - KELOMPOK 5 - minaOS</td>
-    </tr>
     <tr>
         <td align = "center">No.</td>
         <td align = "center">Nama</td>
