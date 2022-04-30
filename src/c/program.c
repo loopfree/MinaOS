@@ -43,9 +43,8 @@ void exit() {
         meta.parent_index = 0x00;
     }
     else {
-        strcpy(meta.node_name, prog_name);
-        meta.node_name = prog_name
+        strcpy(meta.node_name, msg.arg1);
     }
 
-    exec(&meta, prog_seg);
+    exec(&meta, msg.next_program_segment);
 }
