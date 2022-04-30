@@ -50,15 +50,14 @@ int strsplit(char dst[][256], char *src, char splitter) {
 	bool readingsplitter = true;
 	for (i = 0; i < strlen(src); i++) {
 		if (src[i] == splitter) {
-			if (readingsplitter)
-				continue;
-			else {
+			readingsplitter = true;
+		}
+		else {
+			if (readingsplitter) {
 				j += 1;
 				k = 0;
 			}
-		}
-		else {
-			dst[j][k] = src[i];
+			dst[j-1][k] = src[i];
 			k += 1;
             readingsplitter = false;
 		}
@@ -79,7 +78,7 @@ void strcat(char* dst, char* src1, char* src2) {
 	char str2[1024];
 
 	clear(str1, 1024);
-	clear(str2, 12024);
+	clear(str2, 1024);
 	
 	strcpy(str1, src1);
 	strcpy(str2, src2);

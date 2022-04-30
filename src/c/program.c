@@ -3,12 +3,9 @@
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
 void exec(struct file_metadata* meta, int segment) {
-    // meng-eksekusi file pada CX(0x2000) segment
-
-    // reload untuk mendapatkan perintah
-    // yang akan dieksekusi berikutnya
-    reload_message();
-    
+    char buf[20];
+    // meng-eksekusi file pada segment tertentu
+    interrupt(0x21, 0x1, buf, 0x0, 0x0);
     // setelah mengeksekusi
     interrupt(0x21, 0x6, meta, segment, 0x0);
 
@@ -21,6 +18,7 @@ void exit() {
     struct file_metadata meta;
     enum fs_retcode return_code;
     struct message msg;
+    char buffer[20];
 
     clear(&meta, sizeof(struct file_metadata));
     clear(&msg, sizeof(struct message));
@@ -43,6 +41,7 @@ void exit() {
         meta.parent_index = 0x00;
     }
     else {
+        meta.node_name = buffer;
         strcpy(meta.node_name, msg.arg1);
     }
 

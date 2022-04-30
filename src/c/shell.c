@@ -24,7 +24,7 @@ int main() {
 	puts("$ ");
 	gets(input_buf);								// input command
 
-	set_message(FS_NODE_P_IDX_ROOT, input_buf, true);
+	set_message(input_buf, true);
     exit();
 }
 
@@ -34,7 +34,7 @@ void printCWD(char* path, byte cwd) {
 	byte temp_dir = cwd;
 
 	clear(path, 128);
-	interrupt(0x2, &node_fs_buffer, FS_MAP_SECTOR_NUMBER, 0x2, 0x0);
+	interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
 	while (temp_dir != FS_NODE_P_IDX_ROOT) {
 		node = node_fs_buffer.nodes[temp_dir];

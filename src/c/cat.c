@@ -30,5 +30,6 @@ int main() {
         puts("cat: Target is a directory\n");
     }
 
+    reload_message();
     exit();
 }

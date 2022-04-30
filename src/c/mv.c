@@ -19,7 +19,7 @@ int main() {
     char argsdir[8][64];
 
     get_message(&msg);
-    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x1);
+    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
     if (strlen(msg.arg2) == 0 || strlen(msg.arg3) == 0) {
         puts("mv: Missing operands");
@@ -93,5 +93,6 @@ int main() {
         interrupt(0x21, 0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
     }
 
+    reload_message();
     exit();
 }

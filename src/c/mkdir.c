@@ -39,5 +39,6 @@ int main() {
         puts("mkdir: Invalid folder\n");
     }
 
+    reload_message();
     exit();
 }

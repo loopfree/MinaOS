@@ -16,8 +16,11 @@ int main() {
     bool found;
 	char path_str[128]; 
 
+    clear(&msg, sizeof(struct message));
+    clear(&node_fs_buffer, sizeof(struct node_filesystem));
+
     get_message(&msg);
-    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x1);
+    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
     if (strlen(msg.arg2) == 0) {
         puts("cd: Missing operands\n");
@@ -56,5 +59,6 @@ int main() {
         }
     }
 
+    reload_message();
     exit();
 }

@@ -45,16 +45,17 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
 void executeProgram(struct file_metadata *metadata, int segment) {
 	enum fs_retcode fs_ret;
 	byte buf[8192];
+	int i;
 	
 	metadata->buffer = buf;
 	read(metadata, &fs_ret);
+
 	if (fs_ret == FS_SUCCESS) {
-		int i = 0;
 		for (i = 0; i < 8192; i++) {
-		if (i < metadata->filesize)
-			putInMemory(segment, i, metadata->buffer[i]);
-		else
-			putInMemory(segment, i, 0x00);
+			if (i < metadata->filesize)
+				putInMemory(segment, i, metadata->buffer[i]);
+			else
+				putInMemory(segment, i, 0x00);
 		}
 		launchProgram(segment);
 	}

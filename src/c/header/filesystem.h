@@ -52,7 +52,6 @@ struct file_metadata {
 };
 
 
-
 // Untuk error code write & read
 enum fs_retcode {
     FS_UNKNOWN_ERROR    = -1,
