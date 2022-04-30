@@ -1,19 +1,16 @@
 #include "header/filesystem.h"
-#include "header/std_type.h"
 #include "header/textio.h"
 #include "header/fileio.h"
 #include "header/program.h"
 #include "header/utils.h"
+#include "header/string.h"
 
 extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
 
 int main() {
     struct message msg;
-    struct file_metadata metadata;
-    enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
 	struct node_entry node;
-	byte current_dir = FS_NODE_P_IDX_ROOT;
 	byte temp_dir;
     
     int i , j;
@@ -22,12 +19,13 @@ int main() {
     char argsdir[8][64];
 
     get_message(&msg);
+    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x1);
 
     if (strlen(msg.arg2) == 0 || strlen(msg.arg3) == 0) {
         puts("mv: Missing operands");
     }
 
-    temp_dir = current_dir;
+    temp_dir = msg.current_directory;
     strsplit(argsdir, msg.arg3, '/'); 
 
     // mv <src> /<dst>
@@ -80,7 +78,7 @@ int main() {
     found = false;
     for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
         node = node_fs_buffer.nodes[i];
-        if (node.parent_node_index == current_dir && strcmp(msg.arg2, node.name)) {
+        if (node.parent_node_index == msg.current_directory && strcmp(msg.arg2, node.name)) {
             j = i;
             found = true;
         }
@@ -92,7 +90,6 @@ int main() {
     else {
         node_fs_buffer.nodes[j].parent_node_index = temp_dir;
         strcpy(node_fs_buffer.nodes[j].name, filerename);
-        // writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
         interrupt(0x21, 0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
     }
 

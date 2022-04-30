@@ -7,17 +7,15 @@
 
 int main() {
     struct message msg;
-    struct file_metadata metadata;
-    enum fs_retcode ret_code;
 	struct node_filesystem node_fs_buffer;
 	struct node_entry node;
-	byte current_dir = FS_NODE_P_IDX_ROOT;
 
     int i;
     bool found;
 	char path_str[128]; 
 
     get_message(&msg);
+    interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x1);
 
     if (strlen(msg.arg2) == 0) {
         puts("cd: Missing operands\n");
@@ -25,17 +23,17 @@ int main() {
 
     // cd /
     if (strcmp(msg.arg2, "/")) {
-        current_dir = FS_NODE_P_IDX_ROOT;
+        set_cwd(FS_NODE_P_IDX_ROOT);
         clear(path_str, strlen(path_str));
     }
 
     // cd ..
     else if (strcmp(msg.arg2, "..")){
-        if (current_dir == FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
+        if (msg.current_directory == FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
             puts("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
         } 
         else {
-            current_dir = node_fs_buffer.nodes[current_dir].parent_node_index;
+            set_cws(node_fs_buffer.nodes[msg.current_directory].parent_node_index);
         }
     }
 
@@ -44,9 +42,9 @@ int main() {
         found = false;
         for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
             node = node_fs_buffer.nodes[i];
-            if (node.parent_node_index == current_dir) {
+            if (node.parent_node_index == msg.current_directory) {
                 if (strcmp(msg.arg2, node.name) && node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
-                    current_dir = i;
+                    set_cwd(i);
                     found = true;
                 }
             }

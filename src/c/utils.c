@@ -58,7 +58,7 @@ void reload_message() {
     struct message msg;
     clear(&msg, sizeof(struct message));
     // readSector(msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
-    interrupt(0x21, 0x2, msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
+    interrupt(0x21, 0x2, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
     set_message(msg.current_directory, msg.other);
 }
 

@@ -1,5 +1,4 @@
 #include "header/filesystem.h"
-#include "header/std_type.h"
 #include "header/textio.h"
 #include "header/fileio.h"
 #include "header/program.h"
@@ -20,8 +19,7 @@ int main() {
     strcpy(metadata.node_name, msg.arg2);
     metadata.parent_index = msg.current_directory;
 
-    // read(&metadata, &ret_code);
-    interrupt(0x21, 0x4, &metadata, &ret_code, 0x0);
+    read(&metadata, &ret_code);
 
     if (ret_code == FS_SUCCESS) { // file exist
         puts(metadata.buffer);
