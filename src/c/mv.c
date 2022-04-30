@@ -22,7 +22,7 @@ int main() {
     interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
 
     if (strlen(msg.arg2) == 0 || strlen(msg.arg3) == 0) {
-        puts("mv: Missing operands");
+        puts("mv: Missing operands\n");
     }
 
     temp_dir = msg.current_directory;
@@ -33,7 +33,7 @@ int main() {
         temp_dir = FS_NODE_P_IDX_ROOT;
         strcpy(filerename, argsdir[0]);
         if (strcmp(argsdir[0], "..")) {
-            puts("mv: Invalid path");
+            puts("mv: Invalid path\n");
         }
     }
 
@@ -44,7 +44,7 @@ int main() {
             strcpy(filerename, argsdir[1]);
         }
         else {
-            puts("mv: Invalid path");
+            puts("mv: Invalid path\n");
         }
     }
 
@@ -70,7 +70,7 @@ int main() {
         }
         // 'dest' is a file
         else {
-            puts("mv: Target is a file and already exists");
+            puts("mv: Target is a file and already exists\n");
         }
     }
 
@@ -85,7 +85,7 @@ int main() {
     }
 
     if (!found) {
-        puts("mv: No such file or directory");
+        puts("mv: No such file or directory\n");
     }
     else {
         node_fs_buffer.nodes[j].parent_node_index = temp_dir;

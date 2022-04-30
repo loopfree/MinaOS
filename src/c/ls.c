@@ -20,7 +20,7 @@ int main() {
     interrupt(0x21, 0x2, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x1);
 
     // ls 
-    if (strlen(msg.arg1) == 0) {
+    if (strlen(msg.arg2) == 0) {
         for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
             node = node_fs_buffer.nodes[i];
             if (node.parent_node_index == msg.current_directory && strlen(node.name) != 0) {
@@ -37,7 +37,7 @@ int main() {
         for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
             node = node_fs_buffer.nodes[i];
             if (node.parent_node_index == msg.current_directory) {
-                if (strcmp(msg.arg1, node.name)) {
+                if (strcmp(msg.arg2, node.name)) {
                     folder = i;
                     found = true;
                 }

@@ -9,6 +9,7 @@ void set_message(char* args, bool init) {
     char argsmini[8][256];
     int i;
     byte temp_dir;
+    bool segfault = false;
 
     // store currdir
     get_message(&msg);
@@ -34,19 +35,36 @@ void set_message(char* args, bool init) {
     else {
         if (init)
             msg.next_program_segment = 0x3000;
-        else
-            msg.next_program_segment += 0x1000;
+        else {
+            if (getCurrentSegment() == 0x7000) {
+                segfault = true;
+            }
+            else {
+                msg.next_program_segment = getCurrentSegment() + 0x1000;
+            }
+        }
 
-        // Config args
-        argmc = strsplit(argsmini, temp[0], ' ');
-        strcpy(msg.arg1, argsmini[0]);
-        strcpy(msg.arg2, argsmini[1]);
-        strcpy(msg.arg3, argsmini[2]);
+        if (segfault) {
+            strcpy(msg.arg1, "");
+            strcpy(msg.arg2, "");
+            strcpy(msg.arg3, "");
+            msg.next_program_segment = 0x2000;
+            interrupt(0x21, 0x0, "Going back to shell because memory segment overflow\n", 0x0, 0x0);
+        }
+        else {
+            // Config args
+            argmc = strsplit(argsmini, temp[0], ' ');
+            strcpy(msg.arg1, argsmini[0]);
+            strcpy(msg.arg2, argsmini[1]);
+            strcpy(msg.arg3, argsmini[2]);
 
-        for (i = 1; i < argc; i++) {
-            strcat(msg.other, msg.other, args[i]);
+            for (i = 1; i < argc; i++) {
+                strcat(msg.other, msg.other, temp[i]);
+                strcat(msg.other, msg.other, ";");
+            }
         }
     }
+
     interrupt(0x21, 0x3, &msg, FS_MESSAGE_SECTOR_NUMBER, 0x1);
 }
 

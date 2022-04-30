@@ -39,6 +39,7 @@ int main(int argc, char const *argv[]) {
     insert_file(imagebuffer, "out/mkdir", 0x0);
     insert_file(imagebuffer, "out/mv", 0x0);
     insert_file(imagebuffer, "out/shell", 0x0);
+    // insert_file(imagebuffer, "out/hello", 0xFF);
 
     // Overwrite old file
     for (int i = 0; i < 2880; i++)
