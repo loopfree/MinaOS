@@ -24,8 +24,8 @@ int main() {
         for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
             node = node_fs_buffer.nodes[i];
             if (node.parent_node_index == current_dir && strlen(node.name) != 0) {
-                printString(node.name);
-                printString("\n");
+                puts(node.name);
+                puts("\n");
             }
         }
     }
@@ -44,15 +44,15 @@ int main() {
             }
         }
         if (!found) {
-            printString("ls: No such file or directory\n");
+            puts("ls: No such file or directory\n");
         }
         // Melakukan ls terhadap folder
         else {
             for (i=0; i<FS_NODE_SECTOR_CAP; i++) {
                 node = node_fs_buffer.nodes[i];
                 if (node.parent_node_index == folder && strlen(node.name) != 0) {
-                    printString(node.name);
-                    printString("\n");
+                    puts(node.name);
+                    puts("\n");
                 }
             }
         }

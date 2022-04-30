@@ -5,50 +5,53 @@
 #include "header/program.h"
 #include "header/utils.h"
 
+extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
+
 int main() {
     struct message msg;
     struct file_metadata metadata;
     enum fs_retcode ret_code;
     get_message(&msg);
-    // msg.arg1
 
-    if (strlen(msg.arg1) == 0 || strlen(msg.arg2) == 0) {
-        printString("cp: Missing operands\n");
+    if (strlen(msg.arg2) == 0 || strlen(msg.arg3) == 0) {
+        puts("cp: Missing operands\n");
     }
 
     metadata.parent_index = msg.current_directory;
-    strcpy(metadata.node_name, msg.arg1);
+    strcpy(metadata.node_name, msg.arg2);
 
-    read(&metadata, &ret_code);
+    // read(&metadata, &ret_code);
+    interrupt(0x4, &metadata, &ret_code, 0x0, 0x0);
+
     if (ret_code == FS_SUCCESS) {
-        strcpy(metadata.node_name, msg.arg2);
-        write(&metadata, &ret_code);
+        strcpy(metadata.node_name, msg.arg3);
+        // write(&metadata, &ret_code);
+        interrupt(0x5, &metadata, &ret_code, 0x0, 0x0);
 
         if (ret_code == FS_SUCCESS) {
-
         }
         else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-            printString("cp: File already exists\n");
+            puts("cp: File already exists\n");
         }
         else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-            printString("cp: Not enough storage\n");
+            puts("cp: Not enough storage\n");
         }
         else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-            printString("cp: Maximum node entry\n");
+            puts("cp: Maximum node entry\n");
         }
         else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-            printString("cp: Maximum sector entry\n");
+            puts("cp: Maximum sector entry\n");
         }
         else if (ret_code == FS_W_INVALID_FOLDER) {
-            printString("cp: Invalid folder\n");
+            puts("cp: Invalid folder\n");
         }
 
     }
     else if (ret_code == FS_R_NODE_NOT_FOUND) {
-        printString("cp: No such file or directory\n");
+        puts("cp: No such file or directory\n");
     }
     else if (ret_code == FS_R_TYPE_IS_FOLDER) {
-        printString("cp: Cannot copy directory\n");
+        puts("cp: Cannot copy directory\n");
     }
 
     exit(msg.next_program_segment);

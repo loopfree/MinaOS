@@ -5,39 +5,41 @@
 #include "header/program.h"
 #include "header/utils.h"
 
+extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
+
 int main() {
     struct message msg;
     struct file_metadata metadata;
     enum fs_retcode ret_code;
     get_message(&msg);
-    // msg.arg1
 
-    if (strlen(msg.arg1) == 0) {
-        printString("mkdir: Missing operands\n");
+    if (strlen(msg.arg2) == 0) {
+        puts("mkdir: Missing operands\n");
     }
 
-    strcpy(metadata.node_name, msg.arg1);
+    strcpy(metadata.node_name, msg.arg2);
     metadata.parent_index = msg.current_directory;
     metadata.filesize = 0;
-    write(&metadata, &ret_code);
+    // write(&metadata, &ret_code);
+    interrupt(0x5, &metadata, &ret_code, 0x0, 0x0);
 
     if (ret_code == FS_SUCCESS) {
         
     }
     else if (ret_code == FS_W_FILE_ALREADY_EXIST) {
-        printString("mkdir: File or directory already exists\n");
+        puts("mkdir: File or directory already exists\n");
     }
     else if (ret_code == FS_W_NOT_ENOUGH_STORAGE) {
-        printString("mkdir: Not enough storage\n");
+        puts("mkdir: Not enough storage\n");
     }
     else if (ret_code == FS_W_MAXIMUM_NODE_ENTRY) {
-        printString("mkdir: Maximum node entry\n");
+        puts("mkdir: Maximum node entry\n");
     }
     else if (ret_code == FS_W_MAXIMUM_SECTOR_ENTRY) {
-        printString("mkdir: Maximum sector entry\n");
+        puts("mkdir: Maximum sector entry\n");
     }
     else if (ret_code == FS_W_INVALID_FOLDER) {
-        printString("mkdir: Invalid folder\n");
+        puts("mkdir: Invalid folder\n");
     }
 
     exit(msg.next_program_segment);

@@ -5,6 +5,7 @@
         "filesystem.h": "c",
         "utils.h": "c",
         "fileio.h": "c",
-        "kernel.h": "c"
+        "kernel.h": "c",
+        "program.h": "c"
     }
 }

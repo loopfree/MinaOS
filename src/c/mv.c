@@ -5,6 +5,8 @@
 #include "header/program.h"
 #include "header/utils.h"
 
+extern int interrupt(int int_number, int AX, int BX, int CX, int DX);
+
 int main() {
     struct message msg;
     struct file_metadata metadata;
@@ -21,19 +23,19 @@ int main() {
 
     get_message(&msg);
 
-    if (strlen(msg.arg1) == 0 || strlen(msg.arg2) == 0) {
-        printString("mv: Missing operands\n");
+    if (strlen(msg.arg2) == 0 || strlen(msg.arg3) == 0) {
+        puts("mv: Missing operands");
     }
 
     temp_dir = current_dir;
-    strsplit(argsdir, msg.arg2, '/'); 
+    strsplit(argsdir, msg.arg3, '/'); 
 
     // mv <src> /<dst>
-    if (msg.arg2[0] == '/') {
+    if (msg.arg3[0] == '/') {
         temp_dir = FS_NODE_P_IDX_ROOT;
         strcpy(filerename, argsdir[0]);
         if (strcmp(argsdir[0], "..")) {
-            printString("mv: Invalid path\n");
+            puts("mv: Invalid path");
         }
     }
 
@@ -44,7 +46,7 @@ int main() {
             strcpy(filerename, argsdir[1]);
         }
         else {
-            printString("mv: Invalid path\n");
+            puts("mv: Invalid path");
         }
     }
 
@@ -66,11 +68,11 @@ int main() {
         // 'dest' is a folder
         if (node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
             temp_dir = j;
-            strcpy(filerename, msg.arg1);
+            strcpy(filerename, msg.arg2);
         }
         // 'dest' is a file
         else {
-            printString("mv: Target is a file and already exists\n");
+            puts("mv: Target is a file and already exists");
         }
     }
 
@@ -78,19 +80,20 @@ int main() {
     found = false;
     for (i = 0; i < FS_NODE_SECTOR_CAP && !found; i++) {
         node = node_fs_buffer.nodes[i];
-        if (node.parent_node_index == current_dir && strcmp(msg.arg1, node.name)) {
+        if (node.parent_node_index == current_dir && strcmp(msg.arg2, node.name)) {
             j = i;
             found = true;
         }
     }
 
     if (!found) {
-        printString("mv: No such file or directory");
+        puts("mv: No such file or directory");
     }
     else {
         node_fs_buffer.nodes[j].parent_node_index = temp_dir;
         strcpy(node_fs_buffer.nodes[j].name, filerename);
-        writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+        // writeSector(&node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2);
+        interrupt(0x3, &node_fs_buffer, FS_NODE_SECTOR_NUMBER, 0x2, 0x0);
     }
 
     exit(msg.next_program_segment);

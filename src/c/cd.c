@@ -19,20 +19,20 @@ int main() {
 
     get_message(&msg);
 
-    if (strlen(msg.arg1) == 0) {
-        printString("cd: Missing operands\n");
+    if (strlen(msg.arg2) == 0) {
+        puts("cd: Missing operands\n");
     }
 
     // cd /
-    if (strcmp(msg.arg1, "/")) {
+    if (strcmp(msg.arg2, "/")) {
         current_dir = FS_NODE_P_IDX_ROOT;
         clear(path_str, strlen(path_str));
     }
 
     // cd ..
-    else if (strcmp(msg.arg1, "..")){
+    else if (strcmp(msg.arg2, "..")){
         if (current_dir == FS_NODE_P_IDX_ROOT) {		// if 'cd ..' from root directory
-            printString("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
+            puts("cd: Fails to navigate up one directory level because current working dirrectory is root\n");
         } 
         else {
             current_dir = node_fs_buffer.nodes[current_dir].parent_node_index;
@@ -45,14 +45,14 @@ int main() {
         for (i=0; i<FS_NODE_SECTOR_CAP && !found; i++) {
             node = node_fs_buffer.nodes[i];
             if (node.parent_node_index == current_dir) {
-                if (strcmp(msg.arg1, node.name) && node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
+                if (strcmp(msg.arg2, node.name) && node.sector_entry_index == FS_NODE_S_IDX_FOLDER) {
                     current_dir = i;
                     found = true;
                 }
             }
         }
         if (!found) {
-            printString("cd: No such directory\n");
+            puts("cd: No such directory\n");
         }
     }
 
